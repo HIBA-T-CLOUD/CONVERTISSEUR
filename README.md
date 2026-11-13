@@ -15,3 +15,5 @@ Conversion locale (navigateur) de fichiers Excel scolaires vers un modèle Boti.
 
 ## Limites connues
 Dictionnaires volontairement petits (à étendre) ; segmentation par heuristiques + scoring, jamais certaine : les cas ambigus sont signalés. Non implémenté : édition des dictionnaires dans l'UI, multi-modèles via Paramètres, relations élèves/parents, comparaison des doublons côte à côte, seuils configurables dans l'UI, glisser-déposer, ZIP de fichiers de démo.
+
+<!-- vercel-deploy -->
