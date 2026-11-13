@@ -1,0 +1,100 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><title>BOTI SMART IMPORT</title>
+<style>
+body { font: 14px system-ui, -apple-system, sans-serif; margin: 0; background: #f4f6fa; color: #1d2433; }
+header { background: #1f3a8a; color: #fff; padding: 14px 24px; font-size: 18px; font-weight: 500; }
+main { padding: 20px 24px; max-width: 1400px; margin: auto; }
+section { background: #fff; border-radius: 8px; padding: 18px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.wrap { overflow: auto; max-height: 520px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; margin-top: 10px; }
+table { border-collapse: separate; border-spacing: 0; min-width: 100%; width: max-content; }
+th { background: #f8fafc; color: #334155; padding: 8px 12px; font-weight: 600; text-align: left; font-size: 13px; border-bottom: 2px solid #cbd5e1; white-space: nowrap; position: sticky; top: 0; z-index: 2; }
+td { border-bottom: 1px solid #e2e8f0; padding: 6px 10px; white-space: nowrap; vertical-align: middle; }
+input.c { width: 100%; min-width: 140px; border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px 8px; font-size: 13px; background: #fff; box-sizing: border-box; }
+input.c:focus { border-color: #1f3a8a; outline: none; box-shadow: 0 0 0 2px rgba(31,58,138,0.15); }
+input.c[dir="rtl"] { text-align: right; font-family: Tahoma, Arial, sans-serif; }
+.sticky-id { position: sticky; left: 0; background: #fff; z-index: 1; font-weight: 600; text-align: center; border-right: 1px solid #e2e8f0; min-width: 45px; }
+th.sticky-id { z-index: 3; background: #f8fafc; }
+.col-orig { max-width: 260px; min-width: 160px; overflow: hidden; text-overflow: ellipsis; color: #64748b; font-size: 12px; cursor: help; }
+button { background: #1f3a8a; color: #fff; border: 0; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-right: 8px; font-weight: 500; font-size: 13px; }
+button:hover { opacity: 0.92; }
+.b { padding: 3px 9px; border-radius: 10px; color: #fff; font-size: 11px; font-weight: 600; display: inline-block; }
+.tres { background: #15803d; }
+.haute { background: #65a30d; }
+.moyenne { background: #d97706; }
+.faible { background: #dc2626; }
+.erreur td:first-child { border-left: 4px solid #dc2626; }
+.à td:first-child { border-left: 4px solid #d97706; }
+.valide td:first-child { border-left: 4px solid #15803d; }
+.badge-count { background: #e2e8f0; color: #334155; padding: 3px 8px; border-radius: 8px; font-size: 12px; margin-left: 8px; font-weight: 600; }
+</style>
+<header>BOTI SMART IMPORT</header><main>
+<section><b>1. Importation</b><p>Fichier source (xlsx/xls/csv) : <input type=file id=fs accept=".xlsx,.xls,.csv"> Modèle Boti (optionnel) : <input type=file id=ft accept=".xlsx,.xls"></p><button onclick="go()">Analyser</button><button onclick="wipe()">Effacer les données</button> <span id=msg></span></section>
+<section id=sm hidden><b>2. Mapping (modifiable)</b> — en-tête détecté ligne <input id=hr type=number style="width:60px" onchange="go(this.value-1)"> — Ordre nom complet : <select id=no onchange="build()"><option value="nom_first" selected>NOM Prénom / النسب الإسم (standard)</option><option value="prenom_first">Prénom NOM / الإسم النسب</option></select> <div class=wrap id=map></div></section>
+<section id=sp hidden><b>3. Prévisualisation / correction</b> Filtre : <select id=fl onchange="show()"><option value="">tous<option>valide<option>à vérifier<option>erreur</select> <input id=q placeholder="recherche" oninput="show()"> Affichage : <select id=limit onchange="show()"><option value="50">50</option><option value="100" selected>100</option><option value="250">250</option><option value="all">Tout</option></select> <button type=button onclick="flip()" style="background:#0f766e;margin-left:10px">⇄ Inverser Nom / Prénom</button> <span id=count_badge class=badge-count></span><div class=wrap id=pv style="margin-top:10px"></div><p><button onclick="exp()">Télécharger le fichier Boti</button><button onclick="rep()">Télécharger le rapport</button></p><pre id=rp></pre></section></main>
+<script src="vendor/xlsx.full.min.js"></script><script src="js/engine.js"></script><script>
+const E=BotiEngine;let D,S,T,tpl,A,R,t0;const $=i=>document.getElementById(i);
+const rd=f=>new Promise(ok=>{const r=new FileReader();r.onload=e=>ok(XLSX.read(e.target.result,{type:'array',cellStyles:true}));r.readAsArrayBuffer(f)});
+const lv=s=>{const l=E.level(s);return`<span class="b ${l.startsWith('très')?'tres':l}">${s} · ${l}</span>`};
+async function go(fr){
+ try {
+  if(!D)D=E.loadDict(await(await fetch('data/dictionaries.json')).json());
+  t0=performance.now();
+  if($('ft').files&&$('ft').files[0]){
+   T=await rd($('ft').files[0]);tpl=E.templateInfo(XLSX,T,D);tpl.name=$('ft').files[0].name;E.useTemplateKeys(D,tpl);
+  } else if(!tpl){
+   tpl={sheet:'Eleves',headerRow:0,keys:[],labels:[],name:'Modèle auto'};
+  }
+  if(!$('fs').files||!$('fs').files[0]){$('msg').textContent='Veuillez choisir un fichier source';return}
+  S=await rd($('fs').files[0]);A=E.analyze(XLSX,S,D,null,fr);A.name=$('fs').files[0].name;$('hr').value=A.headerRow+1;
+  if(!tpl.keys.length){
+   const autoKeys=['prenom','nom','date_naissance','telephone','classe','massar','matricule'];
+   const mKeys=A.mapping.map(m=>m.key).filter(Boolean);
+   const allKeys=[...new Set([...autoKeys,...mKeys.map(k=>k==='nom_complet'?'nom':k)])];
+   if(mKeys.includes('nom_complet')){if(!allKeys.includes('prenom'))allKeys.unshift('prenom');if(!allKeys.includes('nom'))allKeys.unshift('nom')}
+   tpl.keys=allKeys.filter(k=>!['nom_complet','nom_complet_ar'].includes(k));
+   tpl.labels=tpl.keys.map(k=>k.replace(/_/g,' ').toUpperCase());
+  }
+  $('msg').textContent=A.lowConfidence?'⚠ en-tête incertain : corrigez la ligne':'Feuille « '+A.sheet+' » analysée ('+A.rows.length+' lignes)';
+  $('sm').hidden=$('sp').hidden=false;rmap();build();
+ }catch(e){$('msg').textContent='Erreur : '+e.message}
+}
+const friendlyKeys={'date_inscription':"Date d'entrée / Inscription (école)",'date_naissance':"Date de naissance",'nom_complet':"Nom complet (fusionné)",'nom_complet_ar':"Nom complet (arabe)",'nom':"Nom de famille (النسب)",'prenom':"Prénom (الاسم)",'nom_ar':"النسب (Nom arabe)",'prenom_ar':"الإسم (Prénom arabe)",'classe':"Classe / Groupe",'niveau':"Niveau",'massar':"Code Massar",'matricule':"Matricule",'sexe':"Sexe",'lieu_naissance':"Lieu de naissance",'ancien_etablissement':"Ancien établissement",'papa_nom':"PAPA · Nom",'papa_prenom':"PAPA · Prénom",'papa_nom_complet':"PAPA · Nom complet",'papa_tel':"PAPA · Téléphone",'papa_email':"PAPA · Email",'papa_cin':"PAPA · CIN",'papa_fonction':"PAPA · Fonction",'maman_nom':"MAMAN · Nom",'maman_prenom':"MAMAN · Prénom",'maman_nom_complet':"MAMAN · Nom complet",'maman_tel':"MAMAN · Téléphone",'maman_email':"MAMAN · Email",'maman_cin':"MAMAN · CIN",'maman_fonction':"MAMAN · Fonction"};
+function rmap(){
+ const ks=[...new Set([...tpl.keys.filter(Boolean),'nom_complet','nom_complet_ar',...A.mapping.map(m=>m.key).filter(Boolean)])];
+ $('map').innerHTML='<table><thead><tr><th>Colonne source<th>Exemples<th>Cible<th>Confiance<th>Méthode</tr></thead><tbody>'+A.mapping.map((m,i)=>`<tr><td><b>${m.header}</b><td>${m.sample.join(' | ')}<td><select onchange="A.mapping[${i}].key=this.value;A.mapping[${i}].score=1;A.mapping[${i}].method='manuel';build()"><option value="">— ignorer —${ks.map(k=>`<option value="${k}" ${k===m.key?'selected':''}>${friendlyKeys[k]||(tpl.labels[tpl.keys.indexOf(k)]||k)}</option>`).join('')}</select><td>${lv(Math.round(m.score*100))}<td>${m.method}</tr>`).join('')+'</tbody></table>';
+}
+function build(){
+ const no=$('no')?$('no').value:'nom_first';
+ R=E.build(A,A.mapping,D,{targetKeys:tpl.keys,nameOrder:no});
+ show();
+}
+function flip(){
+ if(!R)return;
+ E.flipNames(R);
+ show();
+}
+function show(){
+ const f=$('fl').value,q=$('q').value.toLowerCase(),lim=$('limit')?$('limit').value:'100';
+ const extraKeys=new Set();
+ if(R){R.forEach(r=>Object.keys(r.v).forEach(k=>{if(k&&!tpl.keys.includes(k))extraKeys.add(k)}))}
+ const allKeys=[...tpl.keys.filter(Boolean),...Array.from(extraKeys)];
+ const allLabels=allKeys.map(k=>{const idx=tpl.keys.indexOf(k);if(idx>=0&&tpl.labels[idx])return tpl.labels[idx];return k.replace(/_/g,' ').toUpperCase()});
+ const filtered=R.map((r,i)=>[r,i]).filter(([r])=>(!f||r.status===f)&&(!q||JSON.stringify(r).toLowerCase().includes(q)));
+ const maxRows=lim==='all'?filtered.length:Math.min(parseInt(lim,10)||100,filtered.length);
+ const slice=filtered.slice(0,maxRows);
+ if($('count_badge'))$('count_badge').textContent=slice.length+' affichées sur '+filtered.length+' ('+R.length+' au total)';
+ $('pv').innerHTML='<table><thead><tr><th class="sticky-id">#</th><th style="min-width:180px">Original (source)</th>'+allLabels.map((l,j)=>`<th title="${allKeys[j]}">${l}</th>`).join('')+'<th>Confiance<th>Statut / alertes</tr></thead><tbody>'+slice.map(([r,i])=>`<tr class="${r.status.slice(0,2)=='er'?'erreur':r.status[0]=='à'?'à':'valide'}"><td class="sticky-id">${i+1}</td><td class="col-orig" title="${(r.orig||[]).map((x,c)=>(A.headers[c]||('Col '+(c+1)))+': '+(x==null?'':x)).join('\n').replace(/"/g,'&quot;')}">${(r.orig||[]).join(' | ')}</td>${allKeys.map(k=>{const v=r.v[k]!=null?String(r.v[k]):'';const isAr=E.isAr(v)||k.endsWith('_ar');const minW=/adresse/.test(k)?'min-width:200px':/(nom|prenom)/.test(k)?'min-width:150px':'min-width:120px';return`<td><input class=c style="${minW}" dir="${isAr?'rtl':'ltr'}" title="${v.replace(/"/g,'&quot;')}" value="${v.replace(/"/g,'&quot;')}" onchange="R[${i}].v['${k}']=this.value;R[${i}].edited=1"></td>`}).join('')}<td>${lv(r.score)}</td><td><b>${r.status}</b> ${r.issues.map(x=>'<br><small style="color:#64748b">'+x.lvl+': '+x.msg+'</small>').join('')}</td></tr>`).join('')+'</tbody></table>';
+ const p=E.report(A,tpl,R,A.mapping);p.temps_ms=Math.round(performance.now()-t0);$('rp').textContent=JSON.stringify(p,null,1);
+}
+function exp(){
+ let targetWb=T;
+ if(!targetWb){
+  targetWb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet([tpl.labels]);
+  XLSX.utils.book_append_sheet(targetWb,ws,tpl.sheet||'Eleves');
+ }
+ const o=E.export(XLSX,XLSX.read(XLSX.write(targetWb,{type:'array',bookType:'xlsx',cellStyles:true}),{type:'array',cellStyles:true}),tpl,R,A);
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([o]));a.download='boti_import.xlsx';a.click();
+}
+function rep(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('rp').textContent]));a.download='rapport.json';a.click()}
+function wipe(){S=T=A=R=tpl=null;$('fs').value=$('ft').value='';$('sm').hidden=$('sp').hidden=true;$('msg').textContent='Données effacées'}
+</script></html>
