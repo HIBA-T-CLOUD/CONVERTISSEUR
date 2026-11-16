@@ -855,41 +855,47 @@ E.mapRecordToColumn = function(r, k, h, D) {
   const strH = String(h || '').trim();
   const normH = E.norm(strH);
 
-  // 1. Matricule
+  // 1. ID / Identifiant
+  if (k === 'id' || /^id$|^identifiant$/i.test(normH)) return r.id || r.matricule || '';
+
+  // 2. Matricule
   if (k === 'matricule' || /matricule|num.*inscr|code.*eleve|id.*eleve/i.test(strH)) return r.matricule || '';
 
-  // 2. Code Massar / CNE
-  if (k === 'massar' || /code.*massar|cne/i.test(strH) || normH === 'cne' || normH === 'code massar') return r.code_massar || '';
+  // 3. Code Massar / CNE
+  if (k === 'massar' || /massar|cne/i.test(strH) || normH === 'massar' || normH === 'cne' || normH === 'code massar') return r.code_massar || '';
 
-  // 3. Parents: Papa & Maman
+  // 4. Parents Téléphones & GSM (check BEFORE parent names so 'Téléphone Père' isn't treated as Père's name)
   if (/autre.*t[ée]l.*papa|fixe.*p[eè]re|urgence.*p[eè]re/i.test(strH)) return r.autre_tel_papa || '';
   if (/autre.*t[ée]l.*maman|fixe.*m[eè]re|urgence.*m[eè]re/i.test(strH)) return r.autre_tel_maman || '';
-  if (k === 'papa_tel' || /gsm.*papa|t[ée]l.*papa|t[ée]l.*p[eè]re|gsm.*p[eè]re/i.test(strH)) return r.gsm_papa || '';
-  if (k === 'maman_tel' || /gsm.*maman|t[ée]l.*maman|t[ée]l.*m[eè]re|gsm.*m[eè]re/i.test(strH)) return r.gsm_maman || '';
-  if (k === 'papa_nom' || ((/nom.*papa|nom.*p[eè]re/i.test(strH)) && !/pr[eé]nom/i.test(strH))) return r.nom_papa || 'Père';
-  if (k === 'papa_prenom' || /pr[eé]nom.*papa|pr[eé]nom.*p[eè]re/i.test(strH)) return r.prenom_papa || 'Père';
-  if (k === 'maman_nom' || ((/nom.*maman|nom.*m[eè]re/i.test(strH)) && !/pr[eé]nom/i.test(strH))) return r.nom_maman || 'Mère';
-  if (k === 'maman_prenom' || /pr[eé]nom.*maman|pr[eé]nom.*m[eè]re/i.test(strH)) return r.prenom_maman || 'Mère';
+  if (k === 'papa_tel' || /gsm.*papa|t[ée]l.*papa|t[ée]l.*p[eè]re|gsm.*p[eè]re|t[ée]l[eé]phone.*p[eè]re/i.test(strH)) return r.gsm_papa || '';
+  if (k === 'maman_tel' || /gsm.*maman|t[ée]l.*maman|t[ée]l.*m[eè]re|gsm.*m[eè]re|t[ée]l[eé]phone.*m[eè]re/i.test(strH)) return r.gsm_maman || '';
 
-  // 4. Prénom
+  // 5. Parents Noms & Prénoms (Father & Mother)
+  if (/pr[eé]nom.*(papa|p[eè]re)/i.test(strH)) return r.prenom_papa || 'Père';
+  if (k === 'papa_nom' || /(nom.*(papa|p[eè]re)|(^|[\s_])(p[eè]re|papa|parent\s*1|tuteur)($|[\s_]))/i.test(strH)) return r.nom_papa || 'Père';
+
+  if (/pr[eé]nom.*(maman|m[eè]re)/i.test(strH)) return r.prenom_maman || 'Mère';
+  if (k === 'maman_nom' || /(nom.*(maman|m[eè]re)|(^|[\s_])(m[eè]re|maman|parent\s*2)($|[\s_]))/i.test(strH)) return r.nom_maman || 'Mère';
+
+  // 6. Prénom élève
   if (k === 'prenom_ar' || /pr[eé]nom.*\(?ar\)?|الإسم|الاسم/i.test(strH)) return r.prenom_ar || '';
   if (k === 'prenom' || k === 'prenom_fr' || /pr[eé]nom/i.test(strH)) return r.prenom_fr || '';
 
-  // 5. Nom complet
+  // 7. Nom complet
   if (k === 'nom_complet_ar' || /الاسم الكامل/i.test(strH)) return ((r.nom_ar || '') + ' ' + (r.prenom_ar || '')).trim();
   if (k === 'nom_complet' || /nom.*complet/i.test(strH)) return ((r.nom_fr || '') + ' ' + (r.prenom_fr || '')).trim() || r.nom_ecole || '';
 
-  // 6. Nom
+  // 8. Nom élève
   if (k === 'nom_ar' || /nom.*\(?ar\)?|النسب|نسب/i.test(strH)) return r.nom_ar || '';
   if (k === 'nom' || k === 'nom_fr' || /(^|[\s_])nom(\s*\(fr\)|_fr|\s*$)/i.test(strH) || normH === 'nom') return r.nom_fr || '';
 
-  // 7. Genre / Sexe
+  // 9. Genre / Sexe
   if (k === 'sexe' || /genre|sexe/i.test(strH)) return r.genre || '';
 
-  // 8. Date de naissance
+  // 10. Date de naissance
   if (k === 'date_naissance' || /date.*naiss/i.test(strH)) return r.date_naissance || '';
 
-  // 9. Niveau & Classe
+  // 11. Niveau & Classe
   if (/niveau.*massar/i.test(strH)) return r.niveau_massar || r.niveau_ecole || '';
   if (/niveau.*[ée]cole/i.test(strH)) return r.niveau_ecole || r.niveau_massar || '';
   if (k === 'niveau' || /niveau/i.test(strH)) return r.niveau_ecole || r.niveau_massar || '';
@@ -898,19 +904,19 @@ E.mapRecordToColumn = function(r, k, h, D) {
   if (/classe.*[ée]cole/i.test(strH)) return r.classe_ecole || r.classe_massar || '';
   if (k === 'classe' || /classe|groupe/i.test(strH)) return r.classe_ecole || r.classe_massar || '';
 
-  // 10. Date inscription
+  // 12. Date inscription
   if (k === 'date_inscription' || /date.*inscr/i.test(strH)) return r.date_inscription || '';
 
-  // 11. Generic Téléphone / GSM
+  // 13. Generic Téléphone / GSM
   if (k === 'telephone' || /^t[ée]l/i.test(strH) || /^gsm/i.test(strH)) return r.gsm_papa || r.gsm_maman || '';
 
-  // 12. Statut liaison
+  // 14. Statut liaison
   if (/statut.*liaison|statut/i.test(strH)) return r.statut || 'OK';
 
-  // 13. Nom école / original
+  // 15. Nom école / original
   if (/nom.*pdf|nom.*[ée]cole.*ref|nom.*original/i.test(strH)) return r.nom_ecole || ((r.nom_fr || '') + ' ' + (r.prenom_fr || '')).trim();
 
-  // 14. Extra fields matching header directly
+  // 16. Extra fields matching header directly
   if (r.extra) {
     if (r.extra[strH] != null) return String(r.extra[strH]);
     for (let [ek, ev] of Object.entries(r.extra)) {
@@ -918,7 +924,7 @@ E.mapRecordToColumn = function(r, k, h, D) {
     }
   }
 
-  // 15. Recognize fallback
+  // 17. Recognize fallback
   if (D) {
     const rec = E.recognize(strH, D);
     if (rec) {
@@ -943,10 +949,14 @@ E.mapRecordToColumn = function(r, k, h, D) {
 E.projectToTemplate = function(rows, tplInfo, D) {
   return (rows || []).map((r, idx) => {
     const v = {};
+    if (!r._row) r._row = {};
     for (let i = 0; i < tplInfo.headers.length; i++) {
       const h = tplInfo.headers[i];
       const k = tplInfo.keys ? tplInfo.keys[i] : '';
-      v[k || h] = E.mapRecordToColumn(r, k, h, D);
+      if (r._row[h] == null) {
+        r._row[h] = E.mapRecordToColumn(r, k, h, D);
+      }
+      v[k || h] = r._row[h];
     }
     return { i: idx, v, status: r.statut || 'OK', score: 95, origRecord: r };
   });
@@ -976,8 +986,11 @@ E.exportMulti = function(X, recResult, tplInfo, tplWb, D) {
         ws['!ref'] = X.utils.encode_range(range);
       }
 
-      // Build data aoa
-      const aoa = rows.map(r => headers.map((h, i) => E.mapRecordToColumn(r, keys ? keys[i] : '', h, D)));
+      // Build data aoa prioritizing r._row (any UI edits)
+      const aoa = rows.map(r => headers.map((h, i) => {
+        if (r._row && r._row[h] != null) return r._row[h];
+        return E.mapRecordToColumn(r, keys ? keys[i] : '', h, D);
+      }));
       X.utils.sheet_add_aoa(ws, aoa, { origin: { r: hr + 1, c: 0 } });
     }
 
@@ -1055,6 +1068,7 @@ E.exportMulti = function(X, recResult, tplInfo, tplWb, D) {
     const aoa = [fullCols.map(c => c.h)];
     rows.forEach(r => {
       aoa.push(fullCols.map(c => {
+        if (r._row && r._row[c.h] != null) return r._row[c.h];
         if (c.isExtra) return (r.extra && r.extra[c.origKey] != null ? r.extra[c.origKey] : '');
         return r[c.k] != null ? r[c.k] : '';
       }));

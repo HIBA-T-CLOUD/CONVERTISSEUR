@@ -179,5 +179,89 @@ test('E.exportMulti with custom output template projects consolidated records on
   assert.strictEqual(outRows[0]['Ligne Bus'], 'Bus 05 - Anfa');
 });
 
+// 7. Test output template with ID, SEXE, MASSAR, MATRICULE, NOM, PRÉNOM, Père, Mère, Téléphone
+test('E.mapRecordToColumn defaults Père/Mère to Père/Mère and maps ID/Matricule/Phones', () => {
+  const r = {
+    matricule: '1328',
+    id: '1328',
+    nom_fr: 'EL ASLI',
+    prenom_fr: 'KARIM',
+    genre: 'M',
+    code_massar: 'M130000001',
+    gsm_papa: '0612345678',
+    gsm_maman: '0687654321'
+  };
+
+  assert.strictEqual(E.mapRecordToColumn(r, '', 'ID', D), '1328');
+  assert.strictEqual(E.mapRecordToColumn(r, '', 'MATRICULE', D), '1328');
+  assert.strictEqual(E.mapRecordToColumn(r, '', 'NOM', D), 'EL ASLI');
+  assert.strictEqual(E.mapRecordToColumn(r, '', 'PRÉNOM', D), 'KARIM');
+  assert.strictEqual(E.mapRecordToColumn(r, '', 'SEXE', D), 'M');
+  assert.strictEqual(E.mapRecordToColumn(r, '', 'MASSAR', D), 'M130000001');
+  assert.strictEqual(E.mapRecordToColumn(r, '', 'Père', D), 'Père');
+  assert.strictEqual(E.mapRecordToColumn(r, '', 'Mère', D), 'Mère');
+  assert.strictEqual(E.mapRecordToColumn(r, '', 'Nom Père', D), 'Père');
+  assert.strictEqual(E.mapRecordToColumn(r, '', 'Nom Mère', D), 'Mère');
+  assert.strictEqual(E.mapRecordToColumn(r, '', 'Téléphone', D), '0612345678');
+  assert.strictEqual(E.mapRecordToColumn(r, '', 'Téléphone Père', D), '0612345678');
+  assert.strictEqual(E.mapRecordToColumn(r, '', 'Téléphone Mère', D), '0687654321');
+});
+
+// 8. Test user edits in r._row exported verbatim into Excel
+test('E.exportMulti exports user cell modifications from r._row 100% identically', () => {
+  const fileStudents = [
+    { Matricule: '1141', 'Nom complet': 'RAGHAD SBAI' }
+  ];
+  const fileContacts = [
+    { Matricule: '1141', 'Tél Père': '06 61 99 99 99' }
+  ];
+
+  const result = E.reconcileMulti([
+    { name: 'eleves.xlsx', rows: fileStudents },
+    { name: 'contacts.xlsx', rows: fileContacts }
+  ], D);
+
+  const tplHeaders = ['ID', 'SEXE', 'MASSAR', 'MATRICULE', 'NOM', 'PRÉNOM', 'Père', 'Mère', 'Téléphone'];
+  const tplWb = XLSX.utils.book_new();
+  const tplWs = XLSX.utils.aoa_to_sheet([tplHeaders]);
+  XLSX.utils.book_append_sheet(tplWb, tplWs, 'ModeleBoti');
+
+  const tplInfo = E.templateInfo(XLSX, tplWb, D);
+
+  // Initialize _row as in UI
+  const row0 = result.rows[0];
+  row0._row = {};
+  tplHeaders.forEach(h => {
+    row0._row[h] = E.mapRecordToColumn(row0, '', h, D);
+  });
+
+  assert.strictEqual(row0._row['ID'], '1141');
+  assert.strictEqual(row0._row['Père'], 'Père');
+  assert.strictEqual(row0._row['Mère'], 'Mère');
+
+  // Simulate user modifying cells in the table
+  row0._row['Père'] = 'AHMED SBAI';
+  row0._row['Mère'] = 'SAMIRA';
+  row0._row['SEXE'] = 'F';
+  row0._row['MASSAR'] = 'F123456789';
+  row0._row['NOM'] = 'SBAI';
+  row0._row['PRÉNOM'] = 'RAGHAD';
+
+  // Export to Excel
+  const outBuf = E.exportMulti(XLSX, result, tplInfo, tplWb, D);
+  const outWb = XLSX.read(outBuf, { type: 'array' });
+  const exportedRows = XLSX.utils.sheet_to_json(outWb.Sheets['ModeleBoti']);
+
+  assert.strictEqual(exportedRows.length, 1);
+  assert.strictEqual(exportedRows[0]['ID'], '1141');
+  assert.strictEqual(exportedRows[0]['Père'], 'AHMED SBAI');
+  assert.strictEqual(exportedRows[0]['Mère'], 'SAMIRA');
+  assert.strictEqual(exportedRows[0]['SEXE'], 'F');
+  assert.strictEqual(exportedRows[0]['MASSAR'], 'F123456789');
+  assert.strictEqual(exportedRows[0]['NOM'], 'SBAI');
+  assert.strictEqual(exportedRows[0]['PRÉNOM'], 'RAGHAD');
+  assert.strictEqual(exportedRows[0]['Téléphone'], '06 61 99 99 99');
+});
+
 console.log(`Multi-Reconciliation : ${passed}/${passed + failed} réussis, ${failed} échecs`);
 if (failed > 0) process.exit(1);

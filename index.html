@@ -631,6 +631,7 @@ input.c[dir="rtl"] {
           <span id="multi_badge_count" class="chip neutral"></span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <button type="button" class="btn soft" onclick="flipNamesMulti()" title="Inverser Nom et Prénom pour tous les élèves">⇄ Inverser Nom / Prénom</button>
           <button class="btn" id="btn_multi_export" onclick="exportMultiExcel()">📥 Télécharger le fichier Boti consolidé (.xlsx)</button>
           <button class="btn ghost" onclick="exportMultiReport()">📑 Rapport (.json)</button>
         </div>
@@ -831,6 +832,7 @@ async function handleMultiTemplate(file) {
     $('btn_clear_multi_tpl').style.display = 'inline-block';
 
     updateMultiExportButton();
+    initMultiRowsData(true);
     if (multiResult) {
       renderMultiTable();
     }
@@ -847,9 +849,55 @@ function clearMultiTemplate() {
   $('multi_tpl_badge').style.display = 'none';
   $('btn_clear_multi_tpl').style.display = 'none';
   updateMultiExportButton();
+  initMultiRowsData(true);
   if (multiResult) {
     renderMultiTable();
   }
+}
+
+function initMultiRowsData(reset) {
+  if (!multiResult || !multiResult.rows) return;
+  const headers = (multiTplInfo && multiTplInfo.headers) ? multiTplInfo.headers : null;
+  const keys = (multiTplInfo && multiTplInfo.keys) ? multiTplInfo.keys : [];
+
+  multiResult.rows.forEach(r => {
+    if (reset || !r._row) r._row = {};
+    if (headers) {
+      headers.forEach((h, j) => {
+        const k = keys[j] || '';
+        if (r._row[h] === undefined) {
+          r._row[h] = E.mapRecordToColumn(r, k, h, D);
+        }
+      });
+    }
+  });
+}
+
+function flipNamesMulti() {
+  if (!multiResult || !multiResult.rows) return;
+  multiResult.rows.forEach(r => {
+    const tmp = r.nom_fr;
+    r.nom_fr = r.prenom_fr;
+    r.prenom_fr = tmp;
+
+    if (r._row) {
+      if (multiTplInfo && multiTplInfo.headers) {
+        multiTplInfo.headers.forEach((h, j) => {
+          const k = (multiTplInfo.keys || [])[j] || '';
+          const normH = E.norm(h);
+          if (k === 'nom' || k === 'nom_fr' || /(^|[\s_])nom(\s*\(fr\)|_fr|\s*$)/i.test(h) || normH === 'nom') {
+            r._row[h] = r.nom_fr || '';
+          } else if (k === 'prenom' || k === 'prenom_fr' || /(^|[\s_])pr[eé]nom(\s*\(fr\)|_fr|\s*$)/i.test(h) || normH === 'prenom') {
+            r._row[h] = r.prenom_fr || '';
+          }
+        });
+      } else {
+        r._row['Nom (FR)'] = r.nom_fr || '';
+        r._row['Prénom (FR)'] = r.prenom_fr || '';
+      }
+    }
+  });
+  renderMultiTable();
 }
 
 function updateMultiExportButton() {
@@ -895,6 +943,7 @@ async function runMerge() {
 
     $('multi_msg').textContent = 'Réconciliation sémantique et fusion en cours...';
     multiResult = E.reconcileMulti(sources, D);
+    initMultiRowsData(true);
 
     $('kpi_total').textContent = multiResult.stats.total;
     $('kpi_ok').textContent = multiResult.stats.ok;
@@ -919,29 +968,47 @@ function filterMulti(cat) {
 function updateMultiStudentField(idx, k, h, val) {
   if (!multiResult || !multiResult.rows[idx]) return;
   const r = multiResult.rows[idx];
+  if (!r._row) r._row = {};
   const strH = String(h || '').trim();
+  const normH = E.norm(strH);
 
-  if (k === 'matricule' || /matricule/i.test(strH)) r.matricule = val;
-  else if (k === 'massar' || /code.*massar|cne/i.test(strH)) r.code_massar = val;
-  else if (k === 'nom_ar' || /nom.*ar|النسب/i.test(strH)) r.nom_ar = val;
+  // 1. Immediately store the exact user edit in r._row[strH]
+  r._row[strH] = val;
+
+  // 2. Also synchronize back to canonical student record fields
+  if (k === 'id' || /^id$|^identifiant$/i.test(normH) || /^id\b/i.test(normH)) {
+    r.id = val;
+    if (!r.matricule) r.matricule = val;
+  }
+  else if (k === 'matricule' || /matricule|num.*inscr|code.*eleve|id.*eleve/i.test(strH) || normH === 'matricule') {
+    r.matricule = val;
+    if (!r.id) r.id = val;
+  }
+  else if (k === 'massar' || /massar|cne/i.test(strH) || normH === 'massar' || normH === 'cne' || normH === 'code massar') {
+    r.code_massar = val;
+  }
+  else if (k === 'nom_ar' || /nom.*ar|النسب|نسب/i.test(strH)) r.nom_ar = val;
   else if (k === 'prenom_ar' || /pr[eé]nom.*ar|الإسم|الاسم/i.test(strH)) r.prenom_ar = val;
-  else if (k === 'prenom' || k === 'prenom_fr' || /pr[eé]nom/i.test(strH)) r.prenom_fr = val;
-  else if (k === 'nom' || k === 'nom_fr' || /nom/i.test(strH)) r.nom_fr = val;
+  else if (k === 'prenom' || k === 'prenom_fr' || /(^|[\s_])pr[eé]nom(\s*\(fr\)|_fr|\s*$)/i.test(strH) || normH === 'prenom') r.prenom_fr = val;
+  else if (k === 'nom' || k === 'nom_fr' || /(^|[\s_])nom(\s*\(fr\)|_fr|\s*$)/i.test(strH) || normH === 'nom') r.nom_fr = val;
   else if (k === 'sexe' || /genre|sexe/i.test(strH)) r.genre = val;
   else if (k === 'date_naissance' || /date.*naiss/i.test(strH)) r.date_naissance = val;
   else if (/classe.*massar/i.test(strH)) r.classe_massar = val;
-  else if (k === 'classe' || /classe/i.test(strH)) r.classe_ecole = val;
+  else if (k === 'classe' || /classe|groupe/i.test(strH)) r.classe_ecole = val;
   else if (/niveau.*massar/i.test(strH)) r.niveau_massar = val;
   else if (k === 'niveau' || /niveau/i.test(strH)) r.niveau_ecole = val;
   else if (k === 'date_inscription' || /date.*inscr/i.test(strH)) r.date_inscription = val;
-  else if (k === 'papa_tel' || /gsm.*papa|t[ée]l.*p[eè]re/i.test(strH)) r.gsm_papa = val;
-  else if (k === 'maman_tel' || /gsm.*maman|t[ée]l.*m[eè]re/i.test(strH)) r.gsm_maman = val;
-  else if (/autre.*t[ée]l.*papa/i.test(strH)) r.autre_tel_papa = val;
-  else if (/autre.*t[ée]l.*maman/i.test(strH)) r.autre_tel_maman = val;
-  else if (k === 'papa_nom' || /nom.*papa/i.test(strH)) r.nom_papa = val;
-  else if (k === 'papa_prenom' || /pr[eé]nom.*papa/i.test(strH)) r.prenom_papa = val;
-  else if (k === 'maman_nom' || /nom.*maman/i.test(strH)) r.nom_maman = val;
-  else if (k === 'maman_prenom' || /pr[eé]nom.*maman/i.test(strH)) r.prenom_maman = val;
+  else if (/autre.*t[ée]l.*papa|fixe.*p[eè]re|urgence.*p[eè]re/i.test(strH)) r.autre_tel_papa = val;
+  else if (/autre.*t[ée]l.*maman|fixe.*m[eè]re|urgence.*m[eè]re/i.test(strH)) r.autre_tel_maman = val;
+  else if (k === 'papa_tel' || /gsm.*(papa|p[eè]re)|(t[ée]l|contact|mobile).*(papa|p[eè]re)/i.test(strH)) r.gsm_papa = val;
+  else if (k === 'maman_tel' || /gsm.*(maman|m[eè]re)|(t[ée]l|contact|mobile).*(maman|m[eè]re)/i.test(strH)) r.gsm_maman = val;
+  else if (/gsm.*tuteur|(t[ée]l|contact|mobile).*tuteur/i.test(strH)) {
+    r.gsm_papa = val;
+  }
+  else if (/pr[eé]nom.*(papa|p[eè]re)/i.test(strH)) r.prenom_papa = val;
+  else if (k === 'papa_nom' || /(nom.*(papa|p[eè]re)|(^|[\s_])(p[eè]re|papa|parent\s*1|tuteur)($|[\s_]))/i.test(strH)) r.nom_papa = val;
+  else if (/pr[eé]nom.*(maman|m[eè]re)/i.test(strH)) r.prenom_maman = val;
+  else if (k === 'maman_nom' || /(nom.*(maman|m[eè]re)|(^|[\s_])(m[eè]re|maman|parent\s*2)($|[\s_]))/i.test(strH)) r.nom_maman = val;
   else {
     if (!r.extra) r.extra = {};
     r.extra[strH] = val;
@@ -1000,18 +1067,25 @@ function renderMultiTable() {
           </tr>
         </thead>
         <tbody>
-          ${slice.map(([r, i]) => `
+          ${slice.map(([r, i]) => {
+            if (!r._row) r._row = {};
+            return `
             <tr class="${rowClass(r.statut)}">
               <td class="sticky-id">${i + 1}</td>
               <td>${stBadge(r.statut)}</td>
               ${headers.map((h, j) => {
                 const k = keys[j] || '';
-                const val = E.mapRecordToColumn(r, k, h, D);
+                if (r._row[h] === undefined) {
+                  r._row[h] = E.mapRecordToColumn(r, k, h, D);
+                }
+                const val = r._row[h] != null ? String(r._row[h]) : '';
                 const isAr = E.isAr(val) || (k && k.endsWith('_ar')) || E.isAr(h);
-                return `<td><input class="c" dir="${isAr ? 'rtl' : 'ltr'}" value="${val.replace(/"/g, '&quot;')}" onchange="updateMultiStudentField(${i}, '${k}', '${h.replace(/'/g, "\\'")}', this.value)"></td>`;
+                const safeH = h.replace(/'/g, "\\'");
+                return `<td><input class="c" dir="${isAr ? 'rtl' : 'ltr'}" value="${val.replace(/"/g, '&quot;')}" oninput="updateMultiStudentField(${i}, '${k}', '${safeH}', this.value)" onchange="updateMultiStudentField(${i}, '${k}', '${safeH}', this.value)"></td>`;
               }).join('')}
             </tr>
-          `).join('')}
+          `;
+          }).join('')}
         </tbody>
       </table>
     `;
@@ -1052,18 +1126,24 @@ function renderMultiTable() {
           </tr>
         </thead>
         <tbody>
-          ${slice.map(([r, i]) => `
+          ${slice.map(([r, i]) => {
+            if (!r._row) r._row = {};
+            return `
             <tr class="${rowClass(r.statut)}">
               <td class="sticky-id">${i + 1}</td>
               <td>${stBadge(r.statut)}</td>
               ${dynamicCols.map(c => {
-                const val = c.isExtra ? (r.extra && r.extra[c.origKey] != null ? String(r.extra[c.origKey]) : '') : (r[c.k] != null ? String(r[c.k]) : '');
+                if (r._row[c.h] === undefined) {
+                  r._row[c.h] = c.isExtra ? (r.extra && r.extra[c.origKey] != null ? String(r.extra[c.origKey]) : '') : (r[c.k] != null ? String(r[c.k]) : '');
+                }
+                const val = r._row[c.h] != null ? String(r._row[c.h]) : '';
                 const isAr = E.isAr(val) || c.k.endsWith('_ar');
-                const onCh = c.isExtra ? `if(!multiResult.rows[${i}].extra)multiResult.rows[${i}].extra={};multiResult.rows[${i}].extra['${c.origKey}']=this.value` : `multiResult.rows[${i}]['${c.k}']=this.value`;
-                return `<td><input class="c" dir="${isAr ? 'rtl' : 'ltr'}" value="${val.replace(/"/g, '&quot;')}" onchange="${onCh}"></td>`;
+                const safeH = c.h.replace(/'/g, "\\'");
+                return `<td><input class="c" dir="${isAr ? 'rtl' : 'ltr'}" value="${val.replace(/"/g, '&quot;')}" oninput="updateMultiStudentField(${i}, '${c.k}', '${safeH}', this.value)" onchange="updateMultiStudentField(${i}, '${c.k}', '${safeH}', this.value)"></td>`;
               }).join('')}
             </tr>
-          `).join('')}
+          `;
+          }).join('')}
         </tbody>
       </table>
     `;
