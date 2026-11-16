@@ -1,100 +1,575 @@
-<!doctype html><html lang="fr"><meta charset="utf-8"><title>BOTI SMART IMPORT</title>
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BOTI SMART IMPORT — Importation & Fusion Scolaire Intelligente</title>
 <style>
-body { font: 14px system-ui, -apple-system, sans-serif; margin: 0; background: #f4f6fa; color: #1d2433; }
-header { background: #1f3a8a; color: #fff; padding: 14px 24px; font-size: 18px; font-weight: 500; }
-main { padding: 20px 24px; max-width: 1400px; margin: auto; }
-section { background: #fff; border-radius: 8px; padding: 18px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-.wrap { overflow: auto; max-height: 520px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; margin-top: 10px; }
+:root {
+  --primary: #1f3a8a;
+  --primary-hover: #172554;
+  --accent: #0284c7;
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --info: #2563eb;
+}
+* { box-sizing: border-box; }
+body { font: 14px system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+header { background: var(--primary); color: #fff; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+header .logo { font-size: 19px; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+header .badge { background: rgba(255,255,255,0.18); font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 500; }
+main { padding: 22px 28px; max-width: 1500px; margin: auto; }
+
+/* Tabs */
+.tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+.tab-btn { background: #e2e8f0; color: #475569; border: 0; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+.tab-btn:hover { background: #cbd5e1; color: var(--text); }
+.tab-btn.active { background: var(--primary); color: #fff; box-shadow: 0 2px 6px rgba(31,58,138,0.25); }
+
+/* Card Section */
+section { background: var(--card-bg); border-radius: 10px; padding: 22px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+section h2, section h3 { margin: 0 0 14px 0; font-size: 16px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+
+/* Buttons & Inputs */
+button.btn { background: var(--primary); color: #fff; border: 0; padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: background 0.15s, transform 0.05s; display: inline-flex; align-items: center; gap: 6px; }
+button.btn:hover { background: var(--primary-hover); }
+button.btn:active { transform: scale(0.98); }
+button.btn-sec { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+button.btn-sec:hover { background: #e2e8f0; }
+button.btn-success { background: var(--success); }
+button.btn-success:hover { background: #15803d; }
+button.btn-danger { background: var(--danger); }
+button.btn-danger:hover { background: #b91c1c; }
+
+input[type=text], select { border: 1px solid #cbd5e1; border-radius: 6px; padding: 7px 10px; font-size: 13px; background: #fff; outline: none; }
+input[type=text]:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(31,58,138,0.15); }
+
+/* Dropzone & File Cards */
+.dropzone { border: 2px dashed #94a3b8; border-radius: 10px; padding: 28px; text-align: center; background: #f8fafc; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; }
+.dropzone:hover, .dropzone.dragover { border-color: var(--primary); background: #eff6ff; }
+.dropzone p { margin: 6px 0 0 0; color: var(--text-muted); font-size: 13px; }
+.file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; margin-top: 14px; }
+.file-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.file-card-hdr { display: flex; align-items: center; justify-content: space-between; }
+.file-card-title { font-weight: 600; font-size: 13px; color: #1e293b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
+.file-card-role { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.file-card-role select { flex: 1; font-size: 12px; padding: 5px 8px; }
+
+/* KPI Stats Cards */
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.kpi-card { background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); padding: 14px 16px; text-align: center; cursor: pointer; transition: all 0.15s; }
+.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 3px 8px rgba(0,0,0,0.06); }
+.kpi-card.active { border-color: var(--primary); background: #eff6ff; }
+.kpi-val { font-size: 26px; font-weight: 800; color: var(--primary); line-height: 1.1; margin-bottom: 4px; }
+.kpi-lbl { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Table Wrapper & Cells */
+.wrap { overflow: auto; max-height: 540px; border: 1px solid var(--border); border-radius: 8px; background: #fff; margin-top: 12px; }
 table { border-collapse: separate; border-spacing: 0; min-width: 100%; width: max-content; }
-th { background: #f8fafc; color: #334155; padding: 8px 12px; font-weight: 600; text-align: left; font-size: 13px; border-bottom: 2px solid #cbd5e1; white-space: nowrap; position: sticky; top: 0; z-index: 2; }
-td { border-bottom: 1px solid #e2e8f0; padding: 6px 10px; white-space: nowrap; vertical-align: middle; }
-input.c { width: 100%; min-width: 140px; border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px 8px; font-size: 13px; background: #fff; box-sizing: border-box; }
-input.c:focus { border-color: #1f3a8a; outline: none; box-shadow: 0 0 0 2px rgba(31,58,138,0.15); }
+th { background: #f1f5f9; color: #334155; padding: 9px 12px; font-weight: 700; text-align: left; font-size: 12px; border-bottom: 2px solid #cbd5e1; white-space: nowrap; position: sticky; top: 0; z-index: 2; }
+td { border-bottom: 1px solid #e2e8f0; padding: 6px 8px; white-space: nowrap; vertical-align: middle; font-size: 13px; }
+.sticky-id { position: sticky; left: 0; background: #fff; z-index: 1; font-weight: 700; text-align: center; border-right: 1px solid #e2e8f0; min-width: 45px; }
+th.sticky-id { z-index: 3; background: #f1f5f9; }
+
+input.c { width: 100%; min-width: 130px; border: 1px solid #cbd5e1; border-radius: 4px; padding: 5px 8px; font-size: 12px; background: #fff; box-sizing: border-box; }
+input.c:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px rgba(31,58,138,0.15); }
 input.c[dir="rtl"] { text-align: right; font-family: Tahoma, Arial, sans-serif; }
-.sticky-id { position: sticky; left: 0; background: #fff; z-index: 1; font-weight: 600; text-align: center; border-right: 1px solid #e2e8f0; min-width: 45px; }
-th.sticky-id { z-index: 3; background: #f8fafc; }
-.col-orig { max-width: 260px; min-width: 160px; overflow: hidden; text-overflow: ellipsis; color: #64748b; font-size: 12px; cursor: help; }
-button { background: #1f3a8a; color: #fff; border: 0; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-right: 8px; font-weight: 500; font-size: 13px; }
-button:hover { opacity: 0.92; }
-.b { padding: 3px 9px; border-radius: 10px; color: #fff; font-size: 11px; font-weight: 600; display: inline-block; }
-.tres { background: #15803d; }
-.haute { background: #65a30d; }
-.moyenne { background: #d97706; }
-.faible { background: #dc2626; }
-.erreur td:first-child { border-left: 4px solid #dc2626; }
-.à td:first-child { border-left: 4px solid #d97706; }
-.valide td:first-child { border-left: 4px solid #15803d; }
-.badge-count { background: #e2e8f0; color: #334155; padding: 3px 8px; border-radius: 8px; font-size: 12px; margin-left: 8px; font-weight: 600; }
+
+/* Status Badges */
+.badge-st { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; white-space: nowrap; }
+.st-ok { background: #dcfce7; color: #166534; }
+.st-verify { background: #fef3c7; color: #92400e; }
+.st-school { background: #e0f2fe; color: #0369a1; }
+.st-massar { background: #f3e8ff; color: #6b21a8; }
+
+.tr-ok td:first-child { border-left: 4px solid var(--success); }
+.tr-verify td:first-child { border-left: 4px solid var(--warning); }
+.tr-school td:first-child { border-left: 4px solid var(--accent); }
+.tr-massar td:first-child { border-left: 4px solid #a855f7; }
+
+/* Pills & Utilities */
+.pill { padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; display: inline-block; }
+.tres { background: #15803d; color: #fff; }
+.haute { background: #65a30d; color: #fff; }
+.moyenne { background: #d97706; color: #fff; }
+.faible { background: #dc2626; color: #fff; }
+.actions-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.msg-box { font-weight: 600; font-size: 13px; color: var(--primary); margin-left: 10px; }
 </style>
-<header>BOTI SMART IMPORT</header><main>
-<section><b>1. Importation</b><p>Fichier source (xlsx/xls/csv) : <input type=file id=fs accept=".xlsx,.xls,.csv"> Modèle Boti (optionnel) : <input type=file id=ft accept=".xlsx,.xls"></p><button onclick="go()">Analyser</button><button onclick="wipe()">Effacer les données</button> <span id=msg></span></section>
-<section id=sm hidden><b>2. Mapping (modifiable)</b> — en-tête détecté ligne <input id=hr type=number style="width:60px" onchange="go(this.value-1)"> — Ordre nom complet : <select id=no onchange="build()"><option value="nom_first" selected>NOM Prénom / النسب الإسم (standard)</option><option value="prenom_first">Prénom NOM / الإسم النسب</option></select> <div class=wrap id=map></div></section>
-<section id=sp hidden><b>3. Prévisualisation / correction</b> Filtre : <select id=fl onchange="show()"><option value="">tous<option>valide<option>à vérifier<option>erreur</select> <input id=q placeholder="recherche" oninput="show()"> Affichage : <select id=limit onchange="show()"><option value="50">50</option><option value="100" selected>100</option><option value="250">250</option><option value="all">Tout</option></select> <button type=button onclick="flip()" style="background:#0f766e;margin-left:10px">⇄ Inverser Nom / Prénom</button> <span id=count_badge class=badge-count></span><div class=wrap id=pv style="margin-top:10px"></div><p><button onclick="exp()">Télécharger le fichier Boti</button><button onclick="rep()">Télécharger le rapport</button></p><pre id=rp></pre></section></main>
-<script src="vendor/xlsx.full.min.js"></script><script src="js/engine.js"></script><script>
-const E=BotiEngine;let D,S,T,tpl,A,R,t0;const $=i=>document.getElementById(i);
-const rd=f=>new Promise(ok=>{const r=new FileReader();r.onload=e=>ok(XLSX.read(e.target.result,{type:'array',cellStyles:true}));r.readAsArrayBuffer(f)});
-const lv=s=>{const l=E.level(s);return`<span class="b ${l.startsWith('très')?'tres':l}">${s} · ${l}</span>`};
-async function go(fr){
- try {
-  if(!D)D=E.loadDict(await(await fetch('data/dictionaries.json')).json());
-  t0=performance.now();
-  if($('ft').files&&$('ft').files[0]){
-   T=await rd($('ft').files[0]);tpl=E.templateInfo(XLSX,T,D);tpl.name=$('ft').files[0].name;E.useTemplateKeys(D,tpl);
-  } else if(!tpl){
-   tpl={sheet:'Eleves',headerRow:0,keys:[],labels:[],name:'Modèle auto'};
+</head><body>
+
+<header>
+  <div class="logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    BOTI SMART IMPORT
+  </div>
+  <div class="badge">100% Client-Side · Données Privées Sécurisées</div>
+</header>
+
+<main>
+  <!-- Navigation Modes -->
+  <nav class="tabs">
+    <button class="tab-btn active" id="tab_multi" onclick="setMode('multi')">🔄 Fusion Multi-fichiers (École + Parents + Massar)</button>
+    <button class="tab-btn" id="tab_single" onclick="setMode('single')">📄 Analyseur Unitaire (Fichier unique Excel / CSV)</button>
+  </nav>
+
+  <!-- ==================== MODE 2 : FUSION MULTI-FICHIERS ==================== -->
+  <div id="view_multi">
+    <section>
+      <h2>📁 1. Dépôt des fichiers scolaires (PDF ou Excel)</h2>
+      <p style="color:var(--text-muted);margin-top:0">
+        Glissez ou sélectionnez les fichiers fournis par l'établissement : <b>liste des élèves inscrits (PDF/Excel)</b>, <b>annuaire téléphonique des parents (PDF/Excel)</b>, et <b>export Massar (Excel bilingue/arabe ou PDF)</b>.
+      </p>
+
+      <div class="dropzone" id="multi_drop" onclick="$('multi_input').click()">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div style="font-weight:700;margin-top:6px">Cliquez ou déposez vos fichiers ici</div>
+        <p>Formats acceptés : PDF (.pdf), Excel (.xlsx, .xls), CSV (.csv) — Détection automatique des rôles</p>
+        <input type="file" id="multi_input" accept=".xlsx,.xls,.csv,.pdf" multiple style="display:none" onchange="handleMultiFiles(this.files)">
+      </div>
+
+      <div id="multi_file_list" class="file-grid"></div>
+
+      <div class="actions-bar" style="margin-top:16px">
+        <div>
+          <button class="btn btn-success" id="btn_merge" onclick="runMerge()" disabled>🚀 Lancer la fusion et réconciliation</button>
+          <button class="btn btn-sec" onclick="clearMulti()">Effacer les fichiers</button>
+          <span id="multi_msg" class="msg-box"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="multi_results" hidden>
+      <h2>📊 2. Résultats de la Réconciliation & Prévisualisation</h2>
+
+      <div class="kpi-row">
+        <div class="kpi-card active" onclick="filterMulti('')">
+          <div class="kpi-val" id="kpi_total">0</div>
+          <div class="kpi-lbl">Total Consolidé</div>
+        </div>
+        <div class="kpi-card" onclick="filterMulti('OK')">
+          <div class="kpi-val" style="color:var(--success)" id="kpi_ok">0</div>
+          <div class="kpi-lbl">Validés (OK)</div>
+        </div>
+        <div class="kpi-card" onclick="filterMulti('verify')">
+          <div class="kpi-val" style="color:var(--warning)" id="kpi_verify">0</div>
+          <div class="kpi-lbl">À vérifier</div>
+        </div>
+        <div class="kpi-card" onclick="filterMulti('ecole')">
+          <div class="kpi-val" style="color:var(--accent)" id="kpi_ecole">0</div>
+          <div class="kpi-lbl">École seule</div>
+        </div>
+        <div class="kpi-card" onclick="filterMulti('massar')">
+          <div class="kpi-val" style="color:#a855f7" id="kpi_massar">0</div>
+          <div class="kpi-lbl">Massar seul</div>
+        </div>
+      </div>
+
+      <div class="actions-bar">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span>Filtre :</span>
+          <select id="multi_fl" onchange="renderMultiTable()">
+            <option value="">Tous les élèves</option>
+            <option value="OK">Validés (OK)</option>
+            <option value="verify">À vérifier</option>
+            <option value="ecole">École seule (non présents sur Massar)</option>
+            <option value="massar">Massar seul (non inscrits école)</option>
+          </select>
+          <input type="text" id="multi_q" placeholder="Recherche élève, matricule, parent..." oninput="renderMultiTable()" style="min-width:220px">
+          <span>Affichage :</span>
+          <select id="multi_lim" onchange="renderMultiTable()">
+            <option value="50">50</option>
+            <option value="100" selected>100</option>
+            <option value="250">250</option>
+            <option value="all">Tout</option>
+          </select>
+          <span id="multi_badge_count" class="badge-count" style="background:#e2e8f0;padding:4px 10px;border-radius:12px;font-weight:600"></span>
+        </div>
+        <div>
+          <button class="btn btn-success" onclick="exportMultiExcel()">📥 Télécharger le fichier Boti consolidé (.xlsx)</button>
+          <button class="btn btn-sec" onclick="exportMultiReport()">📑 Rapport (.json)</button>
+        </div>
+      </div>
+
+      <div class="wrap" id="multi_table_wrap"></div>
+    </section>
+  </div>
+
+  <!-- ==================== MODE 1 : FICHIER UNIQUE (ANALYS EUR) ==================== -->
+  <div id="view_single" hidden>
+    <section>
+      <h2>📄 1. Importation d'un fichier unique</h2>
+      <p>Fichier source (xlsx/xls/csv) : <input type="file" id="fs" accept=".xlsx,.xls,.csv"> Modèle Boti (optionnel) : <input type="file" id="ft" accept=".xlsx,.xls"></p>
+      <button class="btn" onclick="go()">Analyser</button>
+      <button class="btn btn-sec" onclick="wipe()">Effacer les données</button>
+      <span id="msg" class="msg-box"></span>
+    </section>
+
+    <section id="sm" hidden>
+      <h2>📐 2. Mapping des colonnes (modifiable)</h2>
+      <p>
+        En-tête détecté ligne <input id="hr" type="number" style="width:60px" onchange="go(this.value-1)"> — 
+        Ordre nom complet : 
+        <select id="no" onchange="build()">
+          <option value="nom_first" selected>NOM Prénom / النسب الإسم (standard)</option>
+          <option value="prenom_first">Prénom NOM / الإسم النسب</option>
+        </select>
+      </p>
+      <div class="wrap" id="map"></div>
+    </section>
+
+    <section id="sp" hidden>
+      <h2>🔍 3. Prévisualisation / correction</h2>
+      <div class="actions-bar">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>Filtre :</span>
+          <select id="fl" onchange="show()">
+            <option value="">tous</option>
+            <option value="valide">valide</option>
+            <option value="à vérifier">à vérifier</option>
+            <option value="erreur">erreur</option>
+          </select>
+          <input id="q" placeholder="Recherche rapide..." oninput="show()">
+          <span>Affichage :</span>
+          <select id="limit" onchange="show()">
+            <option value="50">50</option>
+            <option value="100" selected>100</option>
+            <option value="250">250</option>
+            <option value="all">Tout</option>
+          </select>
+          <button type="button" class="btn btn-sec" onclick="flip()">⇄ Inverser Nom / Prénom</button>
+          <span id="count_badge" class="badge-count"></span>
+        </div>
+        <div>
+          <button class="btn btn-success" onclick="exp()">Télécharger le fichier Boti (.xlsx)</button>
+          <button class="btn btn-sec" onclick="rep()">Télécharger le rapport</button>
+        </div>
+      </div>
+      <div class="wrap" id="pv"></div>
+      <pre id="rp" style="background:#f1f5f9;padding:12px;border-radius:6px;max-height:160px;overflow:auto;margin-top:12px"></pre>
+    </section>
+  </div>
+</main>
+
+<script src="vendor/xlsx.full.min.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script src="js/engine.js"></script>
+
+<script>
+const E = BotiEngine;
+const $ = i => document.getElementById(i);
+let D = null;
+
+// Initialize PDF.js worker
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js';
+}
+
+async function initDict() {
+  if (!D) {
+    const raw = await (await fetch('data/dictionaries.json')).json();
+    D = E.loadDict(raw);
   }
-  if(!$('fs').files||!$('fs').files[0]){$('msg').textContent='Veuillez choisir un fichier source';return}
-  S=await rd($('fs').files[0]);A=E.analyze(XLSX,S,D,null,fr);A.name=$('fs').files[0].name;$('hr').value=A.headerRow+1;
-  if(!tpl.keys.length){
-   const autoKeys=['prenom','nom','date_naissance','telephone','classe','massar','matricule'];
-   const mKeys=A.mapping.map(m=>m.key).filter(Boolean);
-   const allKeys=[...new Set([...autoKeys,...mKeys.map(k=>k==='nom_complet'?'nom':k)])];
-   if(mKeys.includes('nom_complet')){if(!allKeys.includes('prenom'))allKeys.unshift('prenom');if(!allKeys.includes('nom'))allKeys.unshift('nom')}
-   tpl.keys=allKeys.filter(k=>!['nom_complet','nom_complet_ar'].includes(k));
-   tpl.labels=tpl.keys.map(k=>k.replace(/_/g,' ').toUpperCase());
+}
+
+function setMode(m) {
+  $('tab_multi').classList.toggle('active', m === 'multi');
+  $('tab_single').classList.toggle('active', m === 'single');
+  $('view_multi').hidden = (m !== 'multi');
+  $('view_single').hidden = (m !== 'single');
+}
+
+// ==================== LOGIQUE MODE 2 : FUSION MULTI-FICHIERS ====================
+let multiFiles = [];
+let multiResult = null;
+
+const dropzone = $('multi_drop');
+['dragenter', 'dragover'].forEach(e => dropzone.addEventListener(e, ev => { ev.preventDefault(); dropzone.classList.add('dragover'); }));
+['dragleave', 'drop'].forEach(e => dropzone.addEventListener(e, ev => { ev.preventDefault(); dropzone.classList.remove('dragover'); }));
+dropzone.addEventListener('drop', ev => {
+  if (ev.dataTransfer && ev.dataTransfer.files) handleMultiFiles(ev.dataTransfer.files);
+});
+
+async function handleMultiFiles(files) {
+  await initDict();
+  for (let f of files) {
+    const ext = f.name.split('.').pop().toLowerCase();
+    const role = E.detectFileRole(f.name);
+    multiFiles.push({ file: f, name: f.name, size: f.size, ext, role, parsed: null });
   }
-  $('msg').textContent=A.lowConfidence?'⚠ en-tête incertain : corrigez la ligne':'Feuille « '+A.sheet+' » analysée ('+A.rows.length+' lignes)';
-  $('sm').hidden=$('sp').hidden=false;rmap();build();
- }catch(e){$('msg').textContent='Erreur : '+e.message}
+  renderMultiFileList();
 }
-const friendlyKeys={'date_inscription':"Date d'entrée / Inscription (école)",'date_naissance':"Date de naissance",'nom_complet':"Nom complet (fusionné)",'nom_complet_ar':"Nom complet (arabe)",'nom':"Nom de famille (النسب)",'prenom':"Prénom (الاسم)",'nom_ar':"النسب (Nom arabe)",'prenom_ar':"الإسم (Prénom arabe)",'classe':"Classe / Groupe",'niveau':"Niveau",'massar':"Code Massar",'matricule':"Matricule",'sexe':"Sexe",'lieu_naissance':"Lieu de naissance",'ancien_etablissement':"Ancien établissement",'papa_nom':"PAPA · Nom",'papa_prenom':"PAPA · Prénom",'papa_nom_complet':"PAPA · Nom complet",'papa_tel':"PAPA · Téléphone",'papa_email':"PAPA · Email",'papa_cin':"PAPA · CIN",'papa_fonction':"PAPA · Fonction",'maman_nom':"MAMAN · Nom",'maman_prenom':"MAMAN · Prénom",'maman_nom_complet':"MAMAN · Nom complet",'maman_tel':"MAMAN · Téléphone",'maman_email':"MAMAN · Email",'maman_cin':"MAMAN · CIN",'maman_fonction':"MAMAN · Fonction"};
-function rmap(){
- const ks=[...new Set([...tpl.keys.filter(Boolean),'nom_complet','nom_complet_ar',...A.mapping.map(m=>m.key).filter(Boolean)])];
- $('map').innerHTML='<table><thead><tr><th>Colonne source<th>Exemples<th>Cible<th>Confiance<th>Méthode</tr></thead><tbody>'+A.mapping.map((m,i)=>`<tr><td><b>${m.header}</b><td>${m.sample.join(' | ')}<td><select onchange="A.mapping[${i}].key=this.value;A.mapping[${i}].score=1;A.mapping[${i}].method='manuel';build()"><option value="">— ignorer —${ks.map(k=>`<option value="${k}" ${k===m.key?'selected':''}>${friendlyKeys[k]||(tpl.labels[tpl.keys.indexOf(k)]||k)}</option>`).join('')}</select><td>${lv(Math.round(m.score*100))}<td>${m.method}</tr>`).join('')+'</tbody></table>';
+
+function renderMultiFileList() {
+  const container = $('multi_file_list');
+  if (multiFiles.length === 0) {
+    container.innerHTML = '';
+    $('btn_merge').disabled = true;
+    return;
+  }
+  $('btn_merge').disabled = false;
+  container.innerHTML = multiFiles.map((item, idx) => `
+    <div class="file-card">
+      <div class="file-card-hdr">
+        <span class="file-card-title" title="${item.name}">${item.ext === 'pdf' ? '📄' : '📊'} ${item.name}</span>
+        <button class="btn btn-sec" style="padding:2px 8px;font-size:11px" onclick="removeMultiFile(${idx})">✖</button>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted)">Taille : ${(item.size/1024).toFixed(1)} Ko · Format : ${item.ext.toUpperCase()}</div>
+      <div class="file-card-role">
+        <span style="font-weight:600">Rôle :</span>
+        <select onchange="multiFiles[${idx}].role = this.value">
+          <option value="inscriptions" ${item.role === 'inscriptions' ? 'selected' : ''}>📄 Liste des élèves / Inscriptions</option>
+          <option value="contacts" ${item.role === 'contacts' ? 'selected' : ''}>📞 Annuaire parents / Contacts</option>
+          <option value="massar" ${item.role === 'massar' ? 'selected' : ''}>🏛️ Export Massar (AR ou FR)</option>
+          <option value="generic" ${item.role === 'generic' ? 'selected' : ''}>⚙️ Autre / Générique</option>
+        </select>
+      </div>
+    </div>
+  `).join('');
 }
-function build(){
- const no=$('no')?$('no').value:'nom_first';
- R=E.build(A,A.mapping,D,{targetKeys:tpl.keys,nameOrder:no});
- show();
+
+function removeMultiFile(idx) {
+  multiFiles.splice(idx, 1);
+  renderMultiFileList();
 }
-function flip(){
- if(!R)return;
- E.flipNames(R);
- show();
+
+function clearMulti() {
+  multiFiles = [];
+  multiResult = null;
+  $('multi_results').hidden = true;
+  $('multi_msg').textContent = '';
+  renderMultiFileList();
 }
-function show(){
- const f=$('fl').value,q=$('q').value.toLowerCase(),lim=$('limit')?$('limit').value:'100';
- const extraKeys=new Set();
- if(R){R.forEach(r=>Object.keys(r.v).forEach(k=>{if(k&&!tpl.keys.includes(k))extraKeys.add(k)}))}
- const allKeys=[...tpl.keys.filter(Boolean),...Array.from(extraKeys)];
- const allLabels=allKeys.map(k=>{const idx=tpl.keys.indexOf(k);if(idx>=0&&tpl.labels[idx])return tpl.labels[idx];return k.replace(/_/g,' ').toUpperCase()});
- const filtered=R.map((r,i)=>[r,i]).filter(([r])=>(!f||r.status===f)&&(!q||JSON.stringify(r).toLowerCase().includes(q)));
- const maxRows=lim==='all'?filtered.length:Math.min(parseInt(lim,10)||100,filtered.length);
- const slice=filtered.slice(0,maxRows);
- if($('count_badge'))$('count_badge').textContent=slice.length+' affichées sur '+filtered.length+' ('+R.length+' au total)';
- $('pv').innerHTML='<table><thead><tr><th class="sticky-id">#</th><th style="min-width:180px">Original (source)</th>'+allLabels.map((l,j)=>`<th title="${allKeys[j]}">${l}</th>`).join('')+'<th>Confiance<th>Statut / alertes</tr></thead><tbody>'+slice.map(([r,i])=>`<tr class="${r.status.slice(0,2)=='er'?'erreur':r.status[0]=='à'?'à':'valide'}"><td class="sticky-id">${i+1}</td><td class="col-orig" title="${(r.orig||[]).map((x,c)=>(A.headers[c]||('Col '+(c+1)))+': '+(x==null?'':x)).join('\n').replace(/"/g,'&quot;')}">${(r.orig||[]).join(' | ')}</td>${allKeys.map(k=>{const v=r.v[k]!=null?String(r.v[k]):'';const isAr=E.isAr(v)||k.endsWith('_ar');const minW=/adresse/.test(k)?'min-width:200px':/(nom|prenom)/.test(k)?'min-width:150px':'min-width:120px';return`<td><input class=c style="${minW}" dir="${isAr?'rtl':'ltr'}" title="${v.replace(/"/g,'&quot;')}" value="${v.replace(/"/g,'&quot;')}" onchange="R[${i}].v['${k}']=this.value;R[${i}].edited=1"></td>`}).join('')}<td>${lv(r.score)}</td><td><b>${r.status}</b> ${r.issues.map(x=>'<br><small style="color:#64748b">'+x.lvl+': '+x.msg+'</small>').join('')}</td></tr>`).join('')+'</tbody></table>';
- const p=E.report(A,tpl,R,A.mapping);p.temps_ms=Math.round(performance.now()-t0);$('rp').textContent=JSON.stringify(p,null,1);
+
+async function runMerge() {
+  try {
+    $('multi_msg').textContent = 'Analyse et extraction des fichiers en cours...';
+    await initDict();
+    const sources = [];
+
+    for (let item of multiFiles) {
+      const buf = await item.file.arrayBuffer();
+      if (item.ext === 'pdf') {
+        const parsed = await E.parsePdf(new Uint8Array(buf), window.pdfjsLib);
+        sources.push({ role: item.role, rows: parsed.rows, name: item.name });
+      } else {
+        const wb = XLSX.read(buf, { type: 'array', cellStyles: true });
+        if (item.role === 'massar') {
+          const massarRows = E.parseMassarWorkbook(XLSX, wb);
+          sources.push({ role: 'massar', rows: massarRows, name: item.name });
+        } else {
+          const sName = wb.SheetNames[0];
+          const rawRows = XLSX.utils.sheet_to_json(wb.Sheets[sName]);
+          sources.push({ role: item.role, rows: rawRows, name: item.name });
+        }
+      }
+    }
+
+    $('multi_msg').textContent = 'Réconciliation sémantique et fusion en cours...';
+    multiResult = E.reconcileMulti(sources, D);
+
+    $('kpi_total').textContent = multiResult.stats.total;
+    $('kpi_ok').textContent = multiResult.stats.ok;
+    $('kpi_verify').textContent = multiResult.stats.toVerify;
+    $('kpi_ecole').textContent = multiResult.stats.ecoleSeule;
+    $('kpi_massar').textContent = multiResult.stats.massarSeul;
+
+    $('multi_results').hidden = false;
+    $('multi_msg').textContent = `Fusion réussie : ${multiResult.stats.total} élèves consolidés !`;
+    renderMultiTable();
+  } catch (err) {
+    $('multi_msg').textContent = 'Erreur : ' + err.message;
+    console.error(err);
+  }
 }
-function exp(){
- let targetWb=T;
- if(!targetWb){
-  targetWb=XLSX.utils.book_new();
-  const ws=XLSX.utils.aoa_to_sheet([tpl.labels]);
-  XLSX.utils.book_append_sheet(targetWb,ws,tpl.sheet||'Eleves');
- }
- const o=E.export(XLSX,XLSX.read(XLSX.write(targetWb,{type:'array',bookType:'xlsx',cellStyles:true}),{type:'array',cellStyles:true}),tpl,R,A);
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([o]));a.download='boti_import.xlsx';a.click();
+
+function filterMulti(cat) {
+  $('multi_fl').value = cat;
+  renderMultiTable();
 }
-function rep(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('rp').textContent]));a.download='rapport.json';a.click()}
-function wipe(){S=T=A=R=tpl=null;$('fs').value=$('ft').value='';$('sm').hidden=$('sp').hidden=true;$('msg').textContent='Données effacées'}
-</script></html>
+
+function renderMultiTable() {
+  if (!multiResult) return;
+  const f = $('multi_fl').value;
+  const q = $('multi_q').value.toLowerCase().trim();
+  const lim = $('multi_lim').value;
+
+  const filtered = multiResult.rows.map((r, i) => [r, i]).filter(([r]) => {
+    if (f === 'OK' && r.statut !== 'OK') return false;
+    if (f === 'verify' && !r.statut.startsWith('À vérifier')) return false;
+    if (f === 'ecole' && !r.statut.startsWith('École seule')) return false;
+    if (f === 'massar' && !r.statut.startsWith('Massar seul')) return false;
+    if (q) {
+      const str = `${r.matricule} ${r.code_massar} ${r.nom_fr} ${r.prenom_fr} ${r.nom_ar} ${r.prenom_ar} ${r.classe_ecole} ${r.classe_massar} ${r.gsm_papa} ${r.gsm_maman}`.toLowerCase();
+      if (!str.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const maxRows = lim === 'all' ? filtered.length : Math.min(parseInt(lim, 10) || 100, filtered.length);
+  const slice = filtered.slice(0, maxRows);
+  $('multi_badge_count').textContent = `${slice.length} affichés sur ${filtered.length} (${multiResult.rows.length} au total)`;
+
+  const cols = [
+    { k: 'matricule', h: 'Matricule' },
+    { k: 'code_massar', h: 'Code Massar' },
+    { k: 'nom_fr', h: 'Nom (FR)' },
+    { k: 'prenom_fr', h: 'Prénom (FR)' },
+    { k: 'nom_ar', h: 'النسب (AR)' },
+    { k: 'prenom_ar', h: 'الإسم (AR)' },
+    { k: 'genre', h: 'Genre' },
+    { k: 'date_naissance', h: 'Date Naiss.' },
+    { k: 'classe_ecole', h: 'Classe (école)' },
+    { k: 'classe_massar', h: 'Classe (Massar)' },
+    { k: 'gsm_papa', h: 'GSM Papa' },
+    { k: 'gsm_maman', h: 'GSM Maman' },
+    { k: 'autre_tel_papa', h: 'Autre tél. Papa' },
+    { k: 'autre_tel_maman', h: 'Autre tél. Maman' }
+  ];
+
+  function stBadge(st) {
+    if (st === 'OK') return `<span class="badge-st st-ok">OK</span>`;
+    if (st.startsWith('À vérifier')) return `<span class="badge-st st-verify" title="${st}">⚠️ ${st}</span>`;
+    if (st.startsWith('École seule')) return `<span class="badge-st st-school">École seule</span>`;
+    return `<span class="badge-st st-massar">Massar seul</span>`;
+  }
+
+  function rowClass(st) {
+    if (st === 'OK') return 'tr-ok';
+    if (st.startsWith('À vérifier')) return 'tr-verify';
+    if (st.startsWith('École seule')) return 'tr-school';
+    return 'tr-massar';
+  }
+
+  $('multi_table_wrap').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th class="sticky-id">#</th>
+          <th>Statut</th>
+          ${cols.map(c => `<th>${c.h}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${slice.map(([r, i]) => `
+          <tr class="${rowClass(r.statut)}">
+            <td class="sticky-id">${i + 1}</td>
+            <td>${stBadge(r.statut)}</td>
+            ${cols.map(c => {
+              const val = r[c.k] != null ? String(r[c.k]) : '';
+              const isAr = E.isAr(val) || c.k.endsWith('_ar');
+              return `<td><input class="c" dir="${isAr ? 'rtl' : 'ltr'}" value="${val.replace(/"/g, '&quot;')}" onchange="multiResult.rows[${i}]['${c.k}']=this.value"></td>`;
+            }).join('')}
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function exportMultiExcel() {
+  if (!multiResult) return;
+  const xlsxBuf = E.exportMulti(XLSX, multiResult);
+  const blob = new Blob([xlsxBuf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Boti_Eleves_Parents_Consolide.xlsx';
+  a.click();
+}
+
+function exportMultiReport() {
+  if (!multiResult) return;
+  const rep = {
+    date: new Date().toISOString(),
+    statistiques: multiResult.stats,
+    a_verifier_count: multiResult.toVerify.length,
+    a_verifier: multiResult.toVerify
+  };
+  const blob = new Blob([JSON.stringify(rep, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'rapport_reconciliation.json';
+  a.click();
+}
+
+// ==================== LOGIQUE MODE 1 : FICHIER UNIQUE ====================
+let S, T, tpl, A, R, t0;
+const rd = f => new Promise(ok => { const r = new FileReader(); r.onload = e => ok(XLSX.read(e.target.result, { type: 'array', cellStyles: true })); r.readAsArrayBuffer(f); });
+const lv = s => { const l = E.level(s); return `<span class="pill ${l.startsWith('très')?'tres':l}">${s} · ${l}</span>`; };
+
+async function go(fr) {
+  try {
+    await initDict();
+    t0 = performance.now();
+    if ($('ft').files && $('ft').files[0]) {
+      T = await rd($('ft').files[0]); tpl = E.templateInfo(XLSX, T, D); tpl.name = $('ft').files[0].name; E.useTemplateKeys(D, tpl);
+    } else if (!tpl) {
+      tpl = { sheet: 'Eleves', headerRow: 0, keys: [], labels: [], name: 'Modèle auto' };
+    }
+    if (!$('fs').files || !$('fs').files[0]) { $('msg').textContent = 'Veuillez choisir un fichier source'; return; }
+    S = await rd($('fs').files[0]); A = E.analyze(XLSX, S, D, null, fr); A.name = $('fs').files[0].name; $('hr').value = A.headerRow + 1;
+    if (!tpl.keys.length) {
+      const autoKeys = ['prenom','nom','date_naissance','telephone','classe','massar','matricule'];
+      const mKeys = A.mapping.map(m => m.key).filter(Boolean);
+      const allKeys = [...new Set([...autoKeys, ...mKeys.map(k => k === 'nom_complet' ? 'nom' : k)])];
+      if (mKeys.includes('nom_complet')) { if (!allKeys.includes('prenom')) allKeys.unshift('prenom'); if (!allKeys.includes('nom')) allKeys.unshift('nom'); }
+      tpl.keys = allKeys.filter(k => !['nom_complet','nom_complet_ar'].includes(k));
+      tpl.labels = tpl.keys.map(k => k.replace(/_/g, ' ').toUpperCase());
+    }
+    $('msg').textContent = A.lowConfidence ? '⚠️ en-tête incertain : corrigez la ligne' : `Feuille « ${A.sheet} » analysée (${A.rows.length} lignes)`;
+    $('sm').hidden = $('sp').hidden = false;
+    rmap(); build();
+  } catch (e) { $('msg').textContent = 'Erreur : ' + e.message; }
+}
+
+const friendlyKeys = {'date_inscription':"Date d'entrée / Inscription",'date_naissance':"Date de naissance",'nom_complet':"Nom complet (fusionné)",'nom_complet_ar':"Nom complet (arabe)",'nom':"Nom de famille (النسب)",'prenom':"Prénom (الاسم)",'nom_ar':"النسب (Nom arabe)",'prenom_ar':"الإسم (Prénom arabe)",'classe':"Classe / Groupe",'niveau':"Niveau",'massar':"Code Massar",'matricule':"Matricule",'sexe':"Sexe",'lieu_naissance':"Lieu de naissance",'ancien_etablissement':"Ancien établissement",'papa_nom':"PAPA · Nom",'papa_prenom':"PAPA · Prénom",'papa_nom_complet':"PAPA · Nom complet",'papa_tel':"PAPA · Téléphone",'papa_email':"PAPA · Email",'papa_cin':"PAPA · CIN",'papa_fonction':"PAPA · Fonction",'maman_nom':"MAMAN · Nom",'maman_prenom':"MAMAN · Prénom",'maman_nom_complet':"MAMAN · Nom complet",'maman_tel':"MAMAN · Téléphone",'maman_email':"MAMAN · Email",'maman_cin':"MAMAN · CIN",'maman_fonction':"MAMAN · Fonction"};
+
+function rmap() {
+  const ks = [...new Set([...tpl.keys.filter(Boolean), 'nom_complet', 'nom_complet_ar', ...A.mapping.map(m => m.key).filter(Boolean)])];
+  $('map').innerHTML = '<table><thead><tr><th>Colonne source<th>Exemples<th>Cible<th>Confiance<th>Méthode</tr></thead><tbody>' + A.mapping.map((m, i) => `<tr><td><b>${m.header}</b><td>${m.sample.join(' | ')}<td><select onchange="A.mapping[${i}].key=this.value;A.mapping[${i}].score=1;A.mapping[${i}].method='manuel';build()"><option value="">— ignorer —${ks.map(k => `<option value="${k}" ${k===m.key?'selected':''}>${friendlyKeys[k]||(tpl.labels[tpl.keys.indexOf(k)]||k)}</option>`).join('')}</select><td>${lv(Math.round(m.score*100))}<td>${m.method}</tr>`).join('') + '</tbody></table>';
+}
+
+function build() {
+  const no = $('no') ? $('no').value : 'nom_first';
+  R = E.build(A, A.mapping, D, { targetKeys: tpl.keys, nameOrder: no });
+  show();
+}
+
+function flip() {
+  if (!R) return;
+  E.flipNames(R);
+  show();
+}
+
+function show() {
+  const f = $('fl').value, q = $('q').value.toLowerCase(), lim = $('limit') ? $('limit').value : '100';
+  const extraKeys = new Set();
+  if (R) { R.forEach(r => Object.keys(r.v).forEach(k => { if (k && !tpl.keys.includes(k)) extraKeys.add(k); })); }
+  const allKeys = [...tpl.keys.filter(Boolean), ...Array.from(extraKeys)];
+  const allLabels = allKeys.map(k => { const idx = tpl.keys.indexOf(k); if (idx >= 0 && tpl.labels[idx]) return tpl.labels[idx]; return k.replace(/_/g, ' ').toUpperCase(); });
+  const filtered = R.map((r, i) => [r, i]).filter(([r]) => (!f || r.status === f) && (!q || JSON.stringify(r).toLowerCase().includes(q)));
+  const maxRows = lim === 'all' ? filtered.length : Math.min(parseInt(lim, 10) || 100, filtered.length);
+  const slice = filtered.slice(0, maxRows);
+  if ($('count_badge')) $('count_badge').textContent = `${slice.length} affichées sur ${filtered.length} (${R.length} au total)`;
+  $('pv').innerHTML = '<table><thead><tr><th class="sticky-id">#</th><th style="min-width:180px">Original (source)</th>' + allLabels.map((l, j) => `<th title="${allKeys[j]}">${l}</th>`).join('') + '<th>Confiance<th>Statut / alertes</tr></thead><tbody>' + slice.map(([r, i]) => `<tr class="${r.status.slice(0,2)=='er'?'erreur':r.status[0]=='à'?'à':'valide'}"><td class="sticky-id">${i+1}</td><td class="col-orig" title="${(r.orig||[]).map((x,c)=>(A.headers[c]||('Col '+(c+1)))+': '+(x==null?'':x)).join('\n').replace(/"/g,'&quot;')}">${(r.orig||[]).join(' | ')}</td>${allKeys.map(k=>{const v=r.v[k]!=null?String(r.v[k]):'';const isAr=E.isAr(v)||k.endsWith('_ar');const minW=/adresse/.test(k)?'min-width:200px':/(nom|prenom)/.test(k)?'min-width:150px':'min-width:120px';return`<td><input class=c style="${minW}" dir="${isAr?'rtl':'ltr'}" title="${v.replace(/"/g,'&quot;')}" value="${v.replace(/"/g,'&quot;')}" onchange="R[${i}].v['${k}']=this.value;R[${i}].edited=1"></td>`}).join('')}<td>${lv(r.score)}</td><td><b>${r.status}</b> ${r.issues.map(x=>'<br><small style="color:#64748b">'+x.lvl+': '+x.msg+'</small>').join('')}</td></tr>`).join('') + '</tbody></table>';
+  const p = E.report(A, tpl, R, A.mapping); p.temps_ms = Math.round(performance.now() - t0); $('rp').textContent = JSON.stringify(p, null, 1);
+}
+
+function exp() {
+  let targetWb = T;
+  if (!targetWb) {
+    targetWb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([tpl.labels]);
+    XLSX.utils.book_append_sheet(targetWb, ws, tpl.sheet || 'Eleves');
+  }
+  const o = E.export(XLSX, XLSX.read(XLSX.write(targetWb, { type: 'array', bookType: 'xlsx', cellStyles: true }), { type: 'array', cellStyles: true }), tpl, R, A);
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([o])); a.download = 'boti_import.xlsx'; a.click();
+}
+
+function rep() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([$('rp').textContent])); a.download = 'rapport.json'; a.click(); }
+function wipe() { S = T = A = R = tpl = null; $('fs').value = $('ft').value = ''; $('sm').hidden = $('sp').hidden = true; $('msg').textContent = 'Données effacées'; }
+</script>
+</body></html>

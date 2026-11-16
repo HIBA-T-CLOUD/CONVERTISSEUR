@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "description": "Conversion locale et intelligente de fichiers scolaires Excel vers modèle Boti",
   "scripts": {
-    "test": "node test/run.js && node test/structure.js"
+    "test": "node test/run.js && node test/structure.js && node test/multi.test.js"
   },
   "dependencies": {
+    "pdfjs-dist": "3.11.174",
     "xlsx": "0.18.5",
     "xlsx-js-style": "^1.2.0"
   }
