@@ -50,7 +50,7 @@ E.analyzeSheet=(X,wb,name,D,forceRow)=>{const a=E.readSheet(X,wb.Sheets[name]);c
  for(let c=0;c<hd.length;c++){const cell=rawSheet[X.utils.encode_cell({r:h.row,c})],s=cell&&cell.s?cell.s:null;colStyles[c]=s;if(!headerStyle&&s&&(s.fill||s.fgColor||s.font))headerStyle=s}
  return{sheet:name,headerRow:h.row,lowConfidence:h.lowConfidence,headers:hd,rows:kept,ignored:ign,raw:a,mapping,headerStyle,colStyles,headerRowHeight,score:rec*3+kept.length/1e4}};
 E.analyze=(X,wb,D,sheet,forceRow)=>{const names=sheet?[sheet]:wb.SheetNames;const r=names.map(n=>E.analyzeSheet(X,wb,n,D,forceRow));r.sort((a,b)=>b.score-a.score);r[0].allSheets=wb.SheetNames;return r[0]};
-E.templateInfo=(X,wb,D)=>{const t=E.analyze(X,wb,D),a=t.raw,hr=t.headerRow;
+E.templateInfo=(X,wb,D,prefSheet)=>{let pick=prefSheet;if(!pick&&wb.SheetNames&&wb.SheetNames.length>1){pick=wb.SheetNames.find(s=>/élèves|eleves|inscrits/i.test(s));}const t=E.analyze(X,wb,D,pick),a=t.raw,hr=t.headerRow;
  const base=t.headers.map(h=>{const r=h&&E.recognize(h,D);return r?r.key:''}),cnt={};base.forEach(k=>{if(k)cnt[k.replace(/_ar$/,'')]=(cnt[k.replace(/_ar$/,'')]||0)+1});
  const grp=[];let cur='';(hr>0?a[hr-1]||[]:[]).forEach((x,i)=>{const q=String(x||'').trim();if(q)cur=q;grp[i]=cur});
  t.keys=t.headers.map((h,i)=>{if(!h)return'';let k=base[i];if(!k)return'raw:'+norm(h);
@@ -504,12 +504,20 @@ E.reconcileMulti = function(sources, D, cfg) {
 
   function getFld(obj, ...candidates) {
     if (!obj || typeof obj !== 'object') return '';
-    for (let c of candidates) {
-      if (obj[c] != null && String(obj[c]).trim() !== '') return String(obj[c]).trim();
-      const lc = c.toLowerCase();
-      for (let k of Object.keys(obj)) {
-        if (k.toLowerCase() === lc && obj[k] != null && String(obj[k]).trim() !== '') {
-          return String(obj[k]).trim();
+    const candNorm = candidates.map(c => norm(c));
+    for (let [k, v] of Object.entries(obj)) {
+      if (v == null || String(v).trim() === '') continue;
+      const nk = norm(k);
+      if (candNorm.some(cn => cn === nk || nk.replace(/\s+/g, '_') === cn || cn.replace(/\s+/g, '_') === nk)) {
+        return String(v).trim();
+      }
+      if (D) {
+        const rec = E.recognize(k, D);
+        if (rec) {
+          const rk = norm(rec.key);
+          if (candNorm.some(cn => cn === rk || rk.replace(/\s+/g, '_') === cn || cn.replace(/\s+/g, '_') === rk)) {
+            return String(v).trim();
+          }
         }
       }
     }
@@ -843,7 +851,152 @@ E.reconcileMulti = function(sources, D, cfg) {
   return { rows: reconciled, toVerify, stats };
 };
 
-E.exportMulti = function(X, recResult) {
+E.mapRecordToColumn = function(r, k, h, D) {
+  const strH = String(h || '').trim();
+  const normH = E.norm(strH);
+
+  // 1. Matricule
+  if (k === 'matricule' || /matricule|num.*inscr|code.*eleve|id.*eleve/i.test(strH)) return r.matricule || '';
+
+  // 2. Code Massar / CNE
+  if (k === 'massar' || /code.*massar|cne/i.test(strH) || normH === 'cne' || normH === 'code massar') return r.code_massar || '';
+
+  // 3. Parents: Papa & Maman
+  if (/autre.*t[ée]l.*papa|fixe.*p[eè]re|urgence.*p[eè]re/i.test(strH)) return r.autre_tel_papa || '';
+  if (/autre.*t[ée]l.*maman|fixe.*m[eè]re|urgence.*m[eè]re/i.test(strH)) return r.autre_tel_maman || '';
+  if (k === 'papa_tel' || /gsm.*papa|t[ée]l.*papa|t[ée]l.*p[eè]re|gsm.*p[eè]re/i.test(strH)) return r.gsm_papa || '';
+  if (k === 'maman_tel' || /gsm.*maman|t[ée]l.*maman|t[ée]l.*m[eè]re|gsm.*m[eè]re/i.test(strH)) return r.gsm_maman || '';
+  if (k === 'papa_nom' || ((/nom.*papa|nom.*p[eè]re/i.test(strH)) && !/pr[eé]nom/i.test(strH))) return r.nom_papa || 'Père';
+  if (k === 'papa_prenom' || /pr[eé]nom.*papa|pr[eé]nom.*p[eè]re/i.test(strH)) return r.prenom_papa || 'Père';
+  if (k === 'maman_nom' || ((/nom.*maman|nom.*m[eè]re/i.test(strH)) && !/pr[eé]nom/i.test(strH))) return r.nom_maman || 'Mère';
+  if (k === 'maman_prenom' || /pr[eé]nom.*maman|pr[eé]nom.*m[eè]re/i.test(strH)) return r.prenom_maman || 'Mère';
+
+  // 4. Prénom
+  if (k === 'prenom_ar' || /pr[eé]nom.*\(?ar\)?|الإسم|الاسم/i.test(strH)) return r.prenom_ar || '';
+  if (k === 'prenom' || k === 'prenom_fr' || /pr[eé]nom/i.test(strH)) return r.prenom_fr || '';
+
+  // 5. Nom complet
+  if (k === 'nom_complet_ar' || /الاسم الكامل/i.test(strH)) return ((r.nom_ar || '') + ' ' + (r.prenom_ar || '')).trim();
+  if (k === 'nom_complet' || /nom.*complet/i.test(strH)) return ((r.nom_fr || '') + ' ' + (r.prenom_fr || '')).trim() || r.nom_ecole || '';
+
+  // 6. Nom
+  if (k === 'nom_ar' || /nom.*\(?ar\)?|النسب|نسب/i.test(strH)) return r.nom_ar || '';
+  if (k === 'nom' || k === 'nom_fr' || /(^|[\s_])nom(\s*\(fr\)|_fr|\s*$)/i.test(strH) || normH === 'nom') return r.nom_fr || '';
+
+  // 7. Genre / Sexe
+  if (k === 'sexe' || /genre|sexe/i.test(strH)) return r.genre || '';
+
+  // 8. Date de naissance
+  if (k === 'date_naissance' || /date.*naiss/i.test(strH)) return r.date_naissance || '';
+
+  // 9. Niveau & Classe
+  if (/niveau.*massar/i.test(strH)) return r.niveau_massar || r.niveau_ecole || '';
+  if (/niveau.*[ée]cole/i.test(strH)) return r.niveau_ecole || r.niveau_massar || '';
+  if (k === 'niveau' || /niveau/i.test(strH)) return r.niveau_ecole || r.niveau_massar || '';
+
+  if (/classe.*massar/i.test(strH)) return r.classe_massar || r.classe_ecole || '';
+  if (/classe.*[ée]cole/i.test(strH)) return r.classe_ecole || r.classe_massar || '';
+  if (k === 'classe' || /classe|groupe/i.test(strH)) return r.classe_ecole || r.classe_massar || '';
+
+  // 10. Date inscription
+  if (k === 'date_inscription' || /date.*inscr/i.test(strH)) return r.date_inscription || '';
+
+  // 11. Generic Téléphone / GSM
+  if (k === 'telephone' || /^t[ée]l/i.test(strH) || /^gsm/i.test(strH)) return r.gsm_papa || r.gsm_maman || '';
+
+  // 12. Statut liaison
+  if (/statut.*liaison|statut/i.test(strH)) return r.statut || 'OK';
+
+  // 13. Nom école / original
+  if (/nom.*pdf|nom.*[ée]cole.*ref|nom.*original/i.test(strH)) return r.nom_ecole || ((r.nom_fr || '') + ' ' + (r.prenom_fr || '')).trim();
+
+  // 14. Extra fields matching header directly
+  if (r.extra) {
+    if (r.extra[strH] != null) return String(r.extra[strH]);
+    for (let [ek, ev] of Object.entries(r.extra)) {
+      if (E.norm(ek) === normH) return String(ev);
+    }
+  }
+
+  // 15. Recognize fallback
+  if (D) {
+    const rec = E.recognize(strH, D);
+    if (rec) {
+      if (rec.key === 'matricule') return r.matricule || '';
+      if (rec.key === 'massar') return r.code_massar || '';
+      if (rec.key === 'nom') return r.nom_fr || '';
+      if (rec.key === 'prenom') return r.prenom_fr || '';
+      if (rec.key === 'nom_complet') return ((r.nom_fr || '') + ' ' + (r.prenom_fr || '')).trim() || r.nom_ecole || '';
+      if (rec.key === 'classe') return r.classe_ecole || r.classe_massar || '';
+      if (rec.key === 'niveau') return r.niveau_ecole || r.niveau_massar || '';
+      if (rec.key === 'date_naissance') return r.date_naissance || '';
+      if (rec.key === 'sexe') return r.genre || '';
+      if (rec.key === 'papa_tel') return r.gsm_papa || '';
+      if (rec.key === 'maman_tel') return r.gsm_maman || '';
+      if (rec.key === 'telephone') return r.gsm_papa || r.gsm_maman || '';
+    }
+  }
+
+  return '';
+};
+
+E.projectToTemplate = function(rows, tplInfo, D) {
+  return (rows || []).map((r, idx) => {
+    const v = {};
+    for (let i = 0; i < tplInfo.headers.length; i++) {
+      const h = tplInfo.headers[i];
+      const k = tplInfo.keys ? tplInfo.keys[i] : '';
+      v[k || h] = E.mapRecordToColumn(r, k, h, D);
+    }
+    return { i: idx, v, status: r.statut || 'OK', score: 95, origRecord: r };
+  });
+};
+
+E.exportMulti = function(X, recResult, tplInfo, tplWb, D) {
+  if (tplWb && tplInfo) {
+    const targetWb = X.read(X.write(tplWb, { type: 'array', bookType: 'xlsx', cellStyles: true }), { type: 'array', cellStyles: true });
+
+    function fillSheet(sName, rows) {
+      if (!targetWb.Sheets[sName]) return;
+      const ws = targetWb.Sheets[sName];
+      const sInfo = E.analyzeSheet(X, targetWb, sName, D);
+      const hr = sInfo.headerRow >= 0 ? sInfo.headerRow : 0;
+      const headers = sInfo.headers;
+      const keys = sInfo.keys;
+
+      // Clean existing data rows below headerRow
+      if (ws['!ref']) {
+        const range = X.utils.decode_range(ws['!ref']);
+        for (let R = hr + 1; R <= range.e.r; ++R) {
+          for (let C = 0; C <= range.e.c; ++C) {
+            delete ws[X.utils.encode_cell({ c: C, r: R })];
+          }
+        }
+        range.e.r = hr;
+        ws['!ref'] = X.utils.encode_range(range);
+      }
+
+      // Build data aoa
+      const aoa = rows.map(r => headers.map((h, i) => E.mapRecordToColumn(r, keys ? keys[i] : '', h, D)));
+      X.utils.sheet_add_aoa(ws, aoa, { origin: { r: hr + 1, c: 0 } });
+    }
+
+    const hasEleves = targetWb.SheetNames.some(s => /élèves|eleves/i.test(s));
+    const hasVerify = targetWb.SheetNames.some(s => /vérifier|verifier/i.test(s));
+
+    if (hasEleves && hasVerify) {
+      const elSheet = targetWb.SheetNames.find(s => /élèves|eleves/i.test(s));
+      const verSheet = targetWb.SheetNames.find(s => /vérifier|verifier/i.test(s));
+      fillSheet(elSheet, recResult.rows || []);
+      fillSheet(verSheet, recResult.toVerify || []);
+    } else {
+      const mainSheet = tplInfo.sheet && targetWb.Sheets[tplInfo.sheet] ? tplInfo.sheet : targetWb.SheetNames[0];
+      fillSheet(mainSheet, recResult.rows || []);
+    }
+
+    return X.write(targetWb, { type: 'array', bookType: 'xlsx', cellStyles: true });
+  }
+
   const wb = X.utils.book_new();
   const colsDef = [
     { k: 'matricule', h: 'Matricule', w: 12 },

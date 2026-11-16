@@ -123,5 +123,61 @@ test('E.reconcileMulti consolidates arbitrary multi-files with custom extra colu
   assert.ok(Object.keys(s1Rows[0]).includes('Ligne Bus'));
 });
 
+// 6. Test multi-file consolidation with custom output template projection
+test('E.exportMulti with custom output template projects consolidated records onto template', () => {
+  const fileStudents = [
+    { Matricule: '3001', 'Nom complet': 'BENJELLOUN SAMI', Classe: 'EB-1' },
+    { Matricule: '3002', 'Nom complet': 'TAZI LINA', Classe: 'EB-2' }
+  ];
+  const fileContacts = [
+    { Matricule: '3001', 'Tél Père': '06 61 11 22 33', 'Tél Mère': '06 70 44 55 66' },
+    { Matricule: '3002', 'Tél Père': '06 62 99 88 77' }
+  ];
+  const fileTransport = [
+    { Matricule: '3001', 'Ligne Bus': 'Bus 05 - Anfa' },
+    { Matricule: '3002', 'Ligne Bus': 'Bus 08 - Gauthier' }
+  ];
+
+  const result = E.reconcileMulti([
+    { name: 'eleves.xlsx', rows: fileStudents },
+    { name: 'contacts.xlsx', rows: fileContacts },
+    { name: 'transport.xlsx', rows: fileTransport }
+  ], D);
+
+  // Create custom target template
+  const tplHeaders = ['Matricule', 'Prénom', 'Nom', 'Classe', 'Téléphone Père', 'Téléphone Mère', 'Ligne Bus'];
+  const tplWb = XLSX.utils.book_new();
+  const tplWs = XLSX.utils.aoa_to_sheet([tplHeaders]);
+  XLSX.utils.book_append_sheet(tplWb, tplWs, 'Eleves');
+
+  const tplInfo = E.templateInfo(XLSX, tplWb, D);
+  assert.ok(tplInfo.headers.includes('Matricule'));
+
+  // Project to template
+  const projected = E.projectToTemplate(result.rows, tplInfo, D);
+  assert.strictEqual(projected.length, 2);
+  assert.strictEqual(projected[0].v['matricule'], '3001');
+  assert.strictEqual(projected[0].v['nom'], 'BENJELLOUN');
+  assert.strictEqual(projected[0].v['prenom'], 'SAMI');
+  assert.strictEqual(projected[0].v['papa_tel'], '06 61 11 22 33');
+  assert.strictEqual(projected[0].v['raw:ligne bus'], 'Bus 05 - Anfa');
+
+  // Export with template
+  const outBuf = E.exportMulti(XLSX, result, tplInfo, tplWb, D);
+  const size = outBuf ? (outBuf.byteLength || outBuf.length || 0) : 0;
+  assert.ok(size > 0);
+
+  const outWb = XLSX.read(outBuf, { type: 'array' });
+  assert.deepStrictEqual(outWb.SheetNames, ['Eleves']);
+  const outRows = XLSX.utils.sheet_to_json(outWb.Sheets['Eleves']);
+  assert.strictEqual(outRows.length, 2);
+  assert.strictEqual(outRows[0]['Matricule'], '3001');
+  assert.strictEqual(outRows[0]['Prénom'], 'SAMI');
+  assert.strictEqual(outRows[0]['Nom'], 'BENJELLOUN');
+  assert.strictEqual(outRows[0]['Classe'], 'EB-1');
+  assert.strictEqual(outRows[0]['Téléphone Père'], '06 61 11 22 33');
+  assert.strictEqual(outRows[0]['Ligne Bus'], 'Bus 05 - Anfa');
+});
+
 console.log(`Multi-Reconciliation : ${passed}/${passed + failed} réussis, ${failed} échecs`);
 if (failed > 0) process.exit(1);

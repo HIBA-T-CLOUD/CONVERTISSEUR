@@ -133,6 +133,41 @@ input.c[dir="rtl"] { text-align: right; font-family: Tahoma, Arial, sans-serif; 
 
       <div id="multi_file_list" class="file-grid"></div>
 
+      <!-- Modèle d'output Boti Cible (Optionnel) -->
+      <div style="margin-top:20px;padding:16px 18px;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-weight:700;color:var(--primary);display:flex;align-items:center;gap:8px">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              <span style="font-size:14px">Modèle d'output / Canevas cible souhaité (Optionnel)</span>
+              <span class="badge" style="background:#e0e7ff;color:#3730a3;font-size:11px;font-weight:600">Comme le convertisseur unitaire</span>
+            </div>
+            <p style="margin:4px 0 0;font-size:12.5px;color:var(--text-muted)">
+              Déposez ici votre fichier Excel cible Boti si vous souhaitez projeter les élèves consolidés sur un modèle spécifique. Si aucun modèle n'est fourni, le fichier sera généré selon le standard Boti de référence (Élèves & Parents, À vérifier, Notes).
+            </p>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <input type="file" id="multi_tpl_input" accept=".xlsx,.xls" style="display:none" onchange="handleMultiTemplate(this.files[0])">
+            <button type="button" class="btn btn-sec" style="font-size:12.5px;padding:7px 15px;display:flex;align-items:center;gap:6px" onclick="$('multi_tpl_input').click()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Choisir un modèle d'output (.xlsx)
+            </button>
+            <button type="button" id="btn_clear_multi_tpl" class="btn btn-sec" style="font-size:12px;padding:7px 10px;display:none;color:#dc2626;border-color:#fca5a5" onclick="clearMultiTemplate()">
+              ✕ Retirer le modèle
+            </button>
+          </div>
+        </div>
+
+        <div id="multi_tpl_badge" style="margin-top:12px;display:none;padding:12px 14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;font-size:12.5px;color:#065f46">
+          <div style="font-weight:700;display:flex;align-items:center;gap:6px">
+            <span>✓ Modèle d'output actif :</span>
+            <span id="multi_tpl_name" style="color:#047857;text-decoration:underline"></span>
+            <span id="multi_tpl_cols_count" class="badge" style="background:#d1fae5;color:#065f46;margin-left:6px"></span>
+          </div>
+          <div id="multi_tpl_cols_list" style="margin-top:6px;color:#047857;font-size:12px;line-height:1.5;word-break:break-word"></div>
+        </div>
+      </div>
+
       <div class="actions-bar" style="margin-top:16px">
         <div>
           <button class="btn btn-success" id="btn_merge" onclick="runMerge()" disabled>🚀 Lancer la fusion et réconciliation</button>
@@ -285,6 +320,7 @@ function setMode(m) {
 // ==================== LOGIQUE MODE 2 : FUSION MULTI-FICHIERS ====================
 let multiFiles = [];
 let multiResult = null;
+let multiTplWb = null, multiTplInfo = null, multiTplFile = null;
 
 const dropzone = $('multi_drop');
 ['dragenter', 'dragover'].forEach(e => dropzone.addEventListener(e, ev => { ev.preventDefault(); dropzone.classList.add('dragover'); }));
@@ -348,6 +384,55 @@ function clearMulti() {
   renderMultiFileList();
 }
 
+async function handleMultiTemplate(file) {
+  if (!file) return;
+  try {
+    await initDict();
+    multiTplFile = file;
+    const buf = await file.arrayBuffer();
+    multiTplWb = XLSX.read(buf, { type: 'array', cellStyles: true });
+    multiTplInfo = E.templateInfo(XLSX, multiTplWb, D);
+    multiTplInfo.name = file.name;
+    E.useTemplateKeys(D, multiTplInfo);
+
+    $('multi_tpl_name').textContent = file.name;
+    $('multi_tpl_cols_count').textContent = `${multiTplInfo.headers.length} colonnes cibles détectées`;
+    $('multi_tpl_cols_list').innerHTML = `<b>Colonnes cibles :</b> ${multiTplInfo.headers.map(h => `<span style="display:inline-block;background:#d1fae5;padding:1px 6px;margin:2px;border-radius:4px">${h}</span>`).join(' ')}`;
+    $('multi_tpl_badge').style.display = 'block';
+    $('btn_clear_multi_tpl').style.display = 'inline-block';
+
+    updateMultiExportButton();
+    if (multiResult) {
+      renderMultiTable();
+    }
+  } catch (err) {
+    alert('Erreur lors de la lecture du modèle : ' + err.message);
+  }
+}
+
+function clearMultiTemplate() {
+  multiTplWb = null;
+  multiTplInfo = null;
+  multiTplFile = null;
+  if ($('multi_tpl_input')) $('multi_tpl_input').value = '';
+  $('multi_tpl_badge').style.display = 'none';
+  $('btn_clear_multi_tpl').style.display = 'none';
+  updateMultiExportButton();
+  if (multiResult) {
+    renderMultiTable();
+  }
+}
+
+function updateMultiExportButton() {
+  const btn = $('btn_multi_export');
+  if (!btn) return;
+  if (multiTplInfo) {
+    btn.innerHTML = `📥 Télécharger projeté dans « ${multiTplInfo.name} » (.xlsx)`;
+  } else {
+    btn.innerHTML = `📥 Télécharger le fichier Boti consolidé (.xlsx)`;
+  }
+}
+
 async function runMerge() {
   try {
     $('multi_msg').textContent = 'Analyse et extraction des fichiers en cours...';
@@ -402,8 +487,41 @@ function filterMulti(cat) {
   renderMultiTable();
 }
 
+function updateMultiStudentField(idx, k, h, val) {
+  if (!multiResult || !multiResult.rows[idx]) return;
+  const r = multiResult.rows[idx];
+  const strH = String(h || '').trim();
+
+  if (k === 'matricule' || /matricule/i.test(strH)) r.matricule = val;
+  else if (k === 'massar' || /code.*massar|cne/i.test(strH)) r.code_massar = val;
+  else if (k === 'nom_ar' || /nom.*ar|النسب/i.test(strH)) r.nom_ar = val;
+  else if (k === 'prenom_ar' || /pr[eé]nom.*ar|الإسم|الاسم/i.test(strH)) r.prenom_ar = val;
+  else if (k === 'prenom' || k === 'prenom_fr' || /pr[eé]nom/i.test(strH)) r.prenom_fr = val;
+  else if (k === 'nom' || k === 'nom_fr' || /nom/i.test(strH)) r.nom_fr = val;
+  else if (k === 'sexe' || /genre|sexe/i.test(strH)) r.genre = val;
+  else if (k === 'date_naissance' || /date.*naiss/i.test(strH)) r.date_naissance = val;
+  else if (/classe.*massar/i.test(strH)) r.classe_massar = val;
+  else if (k === 'classe' || /classe/i.test(strH)) r.classe_ecole = val;
+  else if (/niveau.*massar/i.test(strH)) r.niveau_massar = val;
+  else if (k === 'niveau' || /niveau/i.test(strH)) r.niveau_ecole = val;
+  else if (k === 'date_inscription' || /date.*inscr/i.test(strH)) r.date_inscription = val;
+  else if (k === 'papa_tel' || /gsm.*papa|t[ée]l.*p[eè]re/i.test(strH)) r.gsm_papa = val;
+  else if (k === 'maman_tel' || /gsm.*maman|t[ée]l.*m[eè]re/i.test(strH)) r.gsm_maman = val;
+  else if (/autre.*t[ée]l.*papa/i.test(strH)) r.autre_tel_papa = val;
+  else if (/autre.*t[ée]l.*maman/i.test(strH)) r.autre_tel_maman = val;
+  else if (k === 'papa_nom' || /nom.*papa/i.test(strH)) r.nom_papa = val;
+  else if (k === 'papa_prenom' || /pr[eé]nom.*papa/i.test(strH)) r.prenom_papa = val;
+  else if (k === 'maman_nom' || /nom.*maman/i.test(strH)) r.nom_maman = val;
+  else if (k === 'maman_prenom' || /pr[eé]nom.*maman/i.test(strH)) r.prenom_maman = val;
+  else {
+    if (!r.extra) r.extra = {};
+    r.extra[strH] = val;
+  }
+}
+
 function renderMultiTable() {
   if (!multiResult) return;
+  updateMultiExportButton();
   const f = $('multi_fl').value;
   const q = $('multi_q').value.toLowerCase().trim();
   const lim = $('multi_lim').value;
@@ -422,33 +540,8 @@ function renderMultiTable() {
 
   const maxRows = lim === 'all' ? filtered.length : Math.min(parseInt(lim, 10) || 100, filtered.length);
   const slice = filtered.slice(0, maxRows);
-  $('multi_badge_count').textContent = `${slice.length} affichés sur ${filtered.length} (${multiResult.rows.length} au total)`;
-
-  const cols = [
-    { k: 'matricule', h: 'Matricule' },
-    { k: 'code_massar', h: 'Code Massar' },
-    { k: 'nom_fr', h: 'Nom (FR)' },
-    { k: 'prenom_fr', h: 'Prénom (FR)' },
-    { k: 'nom_ar', h: 'النسب (AR)' },
-    { k: 'prenom_ar', h: 'الإسم (AR)' },
-    { k: 'genre', h: 'Genre' },
-    { k: 'date_naissance', h: 'Date Naiss.' },
-    { k: 'classe_ecole', h: 'Classe (école)' },
-    { k: 'classe_massar', h: 'Classe (Massar)' },
-    { k: 'gsm_papa', h: 'GSM Papa' },
-    { k: 'gsm_maman', h: 'GSM Maman' },
-    { k: 'autre_tel_papa', h: 'Autre tél. Papa' },
-    { k: 'autre_tel_maman', h: 'Autre tél. Maman' }
-  ];
-
-  const allExtraKeys = new Set();
-  multiResult.rows.forEach(r => {
-    if (r.extra) Object.keys(r.extra).forEach(k => allExtraKeys.add(k));
-  });
-  const dynamicCols = [...cols];
-  for (let xk of allExtraKeys) {
-    dynamicCols.push({ k: 'extra_' + xk, h: xk, isExtra: true, origKey: xk });
-  }
+  const tplNote = multiTplInfo ? ` · <span style="color:#047857;font-weight:700">🎯 Modèle d'output : ${multiTplInfo.name} (${multiTplInfo.headers.length} colonnes)</span>` : '';
+  $('multi_badge_count').innerHTML = `${slice.length} affichés sur ${filtered.length} (${multiResult.rows.length} au total)${tplNote}`;
 
   function stBadge(st) {
     if (st === 'OK') return `<span class="badge-st st-ok">OK</span>`;
@@ -464,40 +557,98 @@ function renderMultiTable() {
     return 'tr-massar';
   }
 
-  $('multi_table_wrap').innerHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th class="sticky-id">#</th>
-          <th>Statut</th>
-          ${dynamicCols.map(c => `<th>${c.h}</th>`).join('')}
-        </tr>
-      </thead>
-      <tbody>
-        ${slice.map(([r, i]) => `
-          <tr class="${rowClass(r.statut)}">
-            <td class="sticky-id">${i + 1}</td>
-            <td>${stBadge(r.statut)}</td>
-            ${dynamicCols.map(c => {
-              const val = c.isExtra ? (r.extra && r.extra[c.origKey] != null ? String(r.extra[c.origKey]) : '') : (r[c.k] != null ? String(r[c.k]) : '');
-              const isAr = E.isAr(val) || c.k.endsWith('_ar');
-              const onCh = c.isExtra ? `if(!multiResult.rows[${i}].extra)multiResult.rows[${i}].extra={};multiResult.rows[${i}].extra['${c.origKey}']=this.value` : `multiResult.rows[${i}]['${c.k}']=this.value`;
-              return `<td><input class="c" dir="${isAr ? 'rtl' : 'ltr'}" value="${val.replace(/"/g, '&quot;')}" onchange="${onCh}"></td>`;
-            }).join('')}
+  if (multiTplInfo && multiTplInfo.headers && multiTplInfo.headers.length > 0) {
+    const headers = multiTplInfo.headers;
+    const keys = multiTplInfo.keys || [];
+
+    $('multi_table_wrap').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th class="sticky-id">#</th>
+            <th>Statut</th>
+            ${headers.map((h, j) => `<th title="Clé : ${keys[j] || h}">${h}</th>`).join('')}
           </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
+        </thead>
+        <tbody>
+          ${slice.map(([r, i]) => `
+            <tr class="${rowClass(r.statut)}">
+              <td class="sticky-id">${i + 1}</td>
+              <td>${stBadge(r.statut)}</td>
+              ${headers.map((h, j) => {
+                const k = keys[j] || '';
+                const val = E.mapRecordToColumn(r, k, h, D);
+                const isAr = E.isAr(val) || (k && k.endsWith('_ar')) || E.isAr(h);
+                return `<td><input class="c" dir="${isAr ? 'rtl' : 'ltr'}" value="${val.replace(/"/g, '&quot;')}" onchange="updateMultiStudentField(${i}, '${k}', '${h.replace(/'/g, "\\'")}', this.value)"></td>`;
+              }).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } else {
+    const cols = [
+      { k: 'matricule', h: 'Matricule' },
+      { k: 'code_massar', h: 'Code Massar' },
+      { k: 'nom_fr', h: 'Nom (FR)' },
+      { k: 'prenom_fr', h: 'Prénom (FR)' },
+      { k: 'nom_ar', h: 'النسب (AR)' },
+      { k: 'prenom_ar', h: 'الإسم (AR)' },
+      { k: 'genre', h: 'Genre' },
+      { k: 'date_naissance', h: 'Date Naiss.' },
+      { k: 'classe_ecole', h: 'Classe (école)' },
+      { k: 'classe_massar', h: 'Classe (Massar)' },
+      { k: 'gsm_papa', h: 'GSM Papa' },
+      { k: 'gsm_maman', h: 'GSM Maman' },
+      { k: 'autre_tel_papa', h: 'Autre tél. Papa' },
+      { k: 'autre_tel_maman', h: 'Autre tél. Maman' }
+    ];
+
+    const allExtraKeys = new Set();
+    multiResult.rows.forEach(r => {
+      if (r.extra) Object.keys(r.extra).forEach(k => allExtraKeys.add(k));
+    });
+    const dynamicCols = [...cols];
+    for (let xk of allExtraKeys) {
+      dynamicCols.push({ k: 'extra_' + xk, h: xk, isExtra: true, origKey: xk });
+    }
+
+    $('multi_table_wrap').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th class="sticky-id">#</th>
+            <th>Statut</th>
+            ${dynamicCols.map(c => `<th>${c.h}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${slice.map(([r, i]) => `
+            <tr class="${rowClass(r.statut)}">
+              <td class="sticky-id">${i + 1}</td>
+              <td>${stBadge(r.statut)}</td>
+              ${dynamicCols.map(c => {
+                const val = c.isExtra ? (r.extra && r.extra[c.origKey] != null ? String(r.extra[c.origKey]) : '') : (r[c.k] != null ? String(r[c.k]) : '');
+                const isAr = E.isAr(val) || c.k.endsWith('_ar');
+                const onCh = c.isExtra ? `if(!multiResult.rows[${i}].extra)multiResult.rows[${i}].extra={};multiResult.rows[${i}].extra['${c.origKey}']=this.value` : `multiResult.rows[${i}]['${c.k}']=this.value`;
+                return `<td><input class="c" dir="${isAr ? 'rtl' : 'ltr'}" value="${val.replace(/"/g, '&quot;')}" onchange="${onCh}"></td>`;
+              }).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
 }
 
 function exportMultiExcel() {
   if (!multiResult) return;
-  const xlsxBuf = E.exportMulti(XLSX, multiResult);
+  const xlsxBuf = E.exportMulti(XLSX, multiResult, multiTplInfo, multiTplWb, D);
   const blob = new Blob([xlsxBuf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'Boti_Eleves_Parents_Consolide.xlsx';
+  const fname = multiTplFile ? `Boti_${multiTplFile.name}` : 'Boti_Eleves_Parents_Consolide.xlsx';
+  a.download = fname;
   a.click();
 }
 
