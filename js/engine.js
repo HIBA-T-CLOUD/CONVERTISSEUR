@@ -320,6 +320,42 @@ E.parseContactPhones = function(contact) {
     }
   }
 
+  function cleanPhone(val) {
+    if (!val) return '';
+    const digits = String(val).replace(/\D/g, '');
+    if (digits.length === 10 && /^0[5-7]/.test(digits)) {
+      return digits.slice(0,2)+' '+digits.slice(2,4)+' '+digits.slice(4,6)+' '+digits.slice(6,8)+' '+digits.slice(8,10);
+    }
+    if (digits.length === 9 && /^[5-7]/.test(digits)) {
+      const d = '0' + digits;
+      return d.slice(0,2)+' '+d.slice(2,4)+' '+d.slice(4,6)+' '+d.slice(6,8)+' '+d.slice(8,10);
+    }
+    return String(val).trim();
+  }
+
+  function pick(o, ...ks) {
+    if (!o) return '';
+    for (let k of ks) {
+      if (o[k] != null && String(o[k]).trim()) return String(o[k]).trim();
+      const lk = k.toLowerCase();
+      for (let act of Object.keys(o)) {
+        if (act.toLowerCase() === lk && o[act] != null && String(o[act]).trim()) return String(o[act]).trim();
+      }
+    }
+    return '';
+  }
+
+  const dPapa = pick(contact, 'gsm_papa', 'papa_tel', 'Tél Père', 'Tel Pere', 'Téléphone Père', 'هاتف الأب');
+  if (dPapa && !res.gsm_papa) res.gsm_papa = cleanPhone(dPapa);
+  const dMaman = pick(contact, 'gsm_maman', 'maman_tel', 'Tél Mère', 'Tel Mere', 'Téléphone Mère', 'هاتف الأم');
+  if (dMaman && !res.gsm_maman) res.gsm_maman = cleanPhone(dMaman);
+  const dAutreP = pick(contact, 'autre_tel_papa', 'Autre tél. Papa', 'Autre tel Papa');
+  if (dAutreP && !res.autre_tel_papa) res.autre_tel_papa = cleanPhone(dAutreP);
+  const dAutreM = pick(contact, 'autre_tel_maman', 'Autre tél. Maman', 'Autre tel Maman');
+  if (dAutreM && !res.autre_tel_maman) res.autre_tel_maman = cleanPhone(dAutreM);
+  const dGen = pick(contact, 'telephone', 'gsm', 'tel', 'Téléphone', 'الهاتف');
+  if (dGen && !res.gsm_papa) res.gsm_papa = cleanPhone(dGen);
+
   return res;
 };
 
@@ -466,6 +502,34 @@ E.reconcileMulti = function(sources, D, cfg) {
     }
   }
 
+  function getFld(obj, ...candidates) {
+    if (!obj || typeof obj !== 'object') return '';
+    for (let c of candidates) {
+      if (obj[c] != null && String(obj[c]).trim() !== '') return String(obj[c]).trim();
+      const lc = c.toLowerCase();
+      for (let k of Object.keys(obj)) {
+        if (k.toLowerCase() === lc && obj[k] != null && String(obj[k]).trim() !== '') {
+          return String(obj[k]).trim();
+        }
+      }
+    }
+    return '';
+  }
+
+  function getExtraCols(obj) {
+    const extra = {};
+    const std = ['matricule','mat','cne','code_massar','nom','prenom','nom_complet','eleve','classe','niveau','date_inscription','date_naissance','genre','sexe','resp','conj','gsm_papa','gsm_maman','autre_tel_papa','autre_tel_maman','nom_papa','nom_maman','prenom_papa','prenom_maman'];
+    for (let [k, v] of Object.entries(obj)) {
+      if (v == null || String(v).trim() === '') continue;
+      const rec = D ? E.recognize(k, D) : null;
+      const target = rec ? rec.key : k.toLowerCase().replace(/['’\-_.:\/()]+/g, '_').trim();
+      if (!rec && !std.includes(target) && !k.startsWith('extra_')) {
+        extra[k] = String(v).trim();
+      }
+    }
+    return extra;
+  }
+
   for (let s of srcList) {
     if (!s) continue;
     const r = s.role || 'generic';
@@ -474,11 +538,13 @@ E.reconcileMulti = function(sources, D, cfg) {
     else if (r === 'contacts') contactsRows.push(...rows);
     else if (r === 'massar' || r === 'massar_ar' || r === 'massar_fr') massarRawRows.push(...rows);
     else {
-      if (rows.length > 0) {
-        const first = rows[0] || {};
-        if (first.cne || first.Code_Massar || first['الرمز']) massarRawRows.push(...rows);
-        else if (first.resp || first.conj || first.gsm_papa || first.gsm_maman) contactsRows.push(...rows);
-        else inscritsRows.push(...rows);
+      for (let row of rows) {
+        if (!row) continue;
+        const cne = getFld(row, 'cne', 'code_massar', 'Code Massar', 'الرمز');
+        const hasContact = row.resp || row.conj || getFld(row, 'gsm_papa', 'gsm_maman', 'Tél Père', 'Tél Mère');
+        if (cne && !getFld(row, 'matricule', 'mat')) massarRawRows.push(row);
+        else if (hasContact && !getFld(row, 'nom_complet', 'eleve', 'nom')) contactsRows.push(row);
+        else inscritsRows.push(row);
       }
     }
   }
@@ -523,40 +589,72 @@ E.reconcileMulti = function(sources, D, cfg) {
 
   const contactsByMat = {};
   for (let c of contactsRows) {
-    const mat = String(c.matricule || c.mat || '').trim();
-    if (mat) contactsByMat[mat] = c;
+    const mat = getFld(c, 'matricule', 'mat', 'id');
+    if (mat) {
+      if (!contactsByMat[mat]) contactsByMat[mat] = { ...c };
+      else Object.assign(contactsByMat[mat], c);
+    }
   }
 
+  const studentByMat = new Map();
+  const studentByName = new Map();
   const schoolStudents = [];
+
   for (let ins of inscritsRows) {
-    const mat = String(ins.matricule || ins.mat || '').trim();
-    const rawNom = String(ins.nom_complet || ins.eleve || ins.nom || '').trim();
+    const mat = getFld(ins, 'matricule', 'mat', 'id');
+    const rawNom = getFld(ins, 'nom_complet', 'eleve', 'nom');
     if (!mat && !rawNom) continue;
 
-    let nom_fr = '', prenom_fr = '';
-    if (D) {
-      const seg = E.segment(rawNom, D, { order: nameOrder });
-      nom_fr = seg.nom;
-      prenom_fr = seg.prenom;
+    const extra = getExtraCols(ins);
+
+    let existing = null;
+    if (mat && studentByMat.has(mat)) existing = studentByMat.get(mat);
+    else if (rawNom && studentByName.has(norm(rawNom))) existing = studentByName.get(norm(rawNom));
+
+    if (existing) {
+      if (!existing.matricule && mat) existing.matricule = mat;
+      if (!existing.classe_ecole) existing.classe_ecole = getFld(ins, 'classe_ecole', 'classe', 'groupe');
+      if (!existing.niveau_ecole) existing.niveau_ecole = getFld(ins, 'niveau_ecole', 'niveau');
+      if (!existing.date_inscription) existing.date_inscription = getFld(ins, 'date_inscription');
+      if (!existing.date_naissance) existing.date_naissance = getFld(ins, 'date_naissance');
+      if (!existing.genre) existing.genre = getFld(ins, 'genre', 'sexe');
+      const p = E.parseContactPhones(ins);
+      if (!existing.gsm_papa && p.gsm_papa) existing.gsm_papa = p.gsm_papa;
+      if (!existing.gsm_maman && p.gsm_maman) existing.gsm_maman = p.gsm_maman;
+      Object.assign(existing.extra, extra);
     } else {
-      const parts = rawNom.split(/\s+/);
-      nom_fr = parts[0] || '';
-      prenom_fr = parts.slice(1).join(' ') || '';
+      let nom_fr = '', prenom_fr = '';
+      if (D && rawNom) {
+        const seg = E.segment(rawNom, D, { order: nameOrder });
+        nom_fr = seg.nom;
+        prenom_fr = seg.prenom;
+      } else {
+        const parts = rawNom.split(/\s+/);
+        nom_fr = parts[0] || '';
+        prenom_fr = parts.slice(1).join(' ') || '';
+      }
+
+      const contact = contactsByMat[mat] || {};
+      const phones = E.parseContactPhones({ ...contact, ...ins });
+
+      const newStudent = {
+        matricule: mat,
+        nom_complet_ecole: rawNom,
+        nom_fr: getFld(ins, 'nom_fr', 'nom') || nom_fr,
+        prenom_fr: getFld(ins, 'prenom_fr', 'prenom') || prenom_fr,
+        date_inscription: getFld(ins, 'date_inscription'),
+        date_naissance: getFld(ins, 'date_naissance'),
+        genre: getFld(ins, 'genre', 'sexe'),
+        niveau_ecole: getFld(ins, 'niveau_ecole', 'niveau'),
+        classe_ecole: getFld(ins, 'classe_ecole', 'classe', 'groupe'),
+        extra,
+        ...phones
+      };
+
+      if (mat) studentByMat.set(mat, newStudent);
+      if (rawNom) studentByName.set(norm(rawNom), newStudent);
+      schoolStudents.push(newStudent);
     }
-
-    const contact = contactsByMat[mat];
-    const phones = E.parseContactPhones(contact);
-
-    schoolStudents.push({
-      matricule: mat,
-      nom_complet_ecole: rawNom,
-      nom_fr,
-      prenom_fr,
-      date_inscription: ins.date_inscription || '',
-      niveau_ecole: ins.niveau_ecole || ins.niveau || '',
-      classe_ecole: ins.classe_ecole || ins.classe || '',
-      ...phones
-    });
   }
 
   const massarMatched = new Set();
@@ -669,7 +767,8 @@ E.reconcileMulti = function(sources, D, cfg) {
         gsm_papa: sch.gsm_papa || '',
         autre_tel_papa: sch.autre_tel_papa || '',
         statut,
-        nom_ecole: nomEcoleRef
+        nom_ecole: nomEcoleRef,
+        extra: sch.extra || {}
       });
     } else {
       reconciled.push({
@@ -679,8 +778,8 @@ E.reconcileMulti = function(sources, D, cfg) {
         prenom_fr: sch.prenom_fr,
         nom_ar: '',
         prenom_ar: '',
-        genre: '',
-        date_naissance: '',
+        genre: sch.genre || '',
+        date_naissance: sch.date_naissance || '',
         niveau_massar: '',
         classe_massar: '',
         niveau_ecole: sch.niveau_ecole,
@@ -694,8 +793,9 @@ E.reconcileMulti = function(sources, D, cfg) {
         prenom_papa: sch.prenom_papa || 'Père',
         gsm_papa: sch.gsm_papa || '',
         autre_tel_papa: sch.autre_tel_papa || '',
-        statut: 'École seule (pas de code Massar)',
-        nom_ecole: sch.nom_complet_ecole
+        statut: massarRows.length > 0 ? 'École seule (pas de code Massar)' : 'OK',
+        nom_ecole: sch.nom_complet_ecole,
+        extra: sch.extra || {}
       });
     }
   }
@@ -783,18 +883,36 @@ E.exportMulti = function(X, recResult) {
     }
   };
 
+  const allExtraKeys = new Set();
+  (recResult.rows || []).forEach(r => {
+    if (r.extra) Object.keys(r.extra).forEach(k => allExtraKeys.add(k));
+  });
+  const fullCols = [...colsDef];
+  for (let xk of allExtraKeys) {
+    fullCols.push({
+      k: 'extra_' + xk,
+      h: xk,
+      w: Math.max(14, xk.length + 3),
+      isExtra: true,
+      origKey: xk
+    });
+  }
+
   function makeSheet(rows) {
-    const aoa = [colsDef.map(c => c.h)];
+    const aoa = [fullCols.map(c => c.h)];
     rows.forEach(r => {
-      aoa.push(colsDef.map(c => r[c.k] != null ? r[c.k] : ''));
+      aoa.push(fullCols.map(c => {
+        if (c.isExtra) return (r.extra && r.extra[c.origKey] != null ? r.extra[c.origKey] : '');
+        return r[c.k] != null ? r[c.k] : '';
+      }));
     });
     const ws = X.utils.aoa_to_sheet(aoa);
-    for (let c = 0; c < colsDef.length; c++) {
+    for (let c = 0; c < fullCols.length; c++) {
       const ref = X.utils.encode_cell({ r: 0, c });
       if (ws[ref]) ws[ref].s = baseHdr;
     }
     ws['!rows'] = [{ hpt: 26, hpx: 26 }];
-    ws['!cols'] = colsDef.map(c => ({ wch: c.w }));
+    ws['!cols'] = fullCols.map(c => ({ wch: c.w }));
     return ws;
   }
 

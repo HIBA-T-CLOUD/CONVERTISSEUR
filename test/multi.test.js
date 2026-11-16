@@ -90,5 +90,38 @@ test('E.reconcileMulti fuses inscriptions, contacts, and massar correctly', () =
   assert.deepStrictEqual(testWb.SheetNames, ['Élèves & Parents', 'À vérifier', 'Notes']);
 });
 
+// 5. Test arbitrary multi-file consolidation with extra custom columns
+test('E.reconcileMulti consolidates arbitrary multi-files with custom extra columns', () => {
+  const fileStudents = [
+    { Matricule: '2001', 'Nom complet': 'ALAMI MOHAMED', Classe: 'CP-A' },
+    { Matricule: '2002', 'Nom complet': 'BENANI HOUDA', Classe: 'CP-B' }
+  ];
+  const fileContacts = [
+    { Matricule: '2001', 'Tél Père': '06 61 00 11 22', 'Tél Mère': '06 70 33 44 55' },
+    { Matricule: '2002', 'Tél Mère': '06 65 77 88 99' }
+  ];
+  const fileTransport = [
+    { Matricule: '2001', 'Ligne Bus': 'Ligne 12 - Racine', 'Arrêt Bus': 'Clinique Badr' },
+    { Matricule: '2002', 'Ligne Bus': 'Ligne 04 - Oasis' }
+  ];
+
+  const result = E.reconcileMulti([
+    { name: 'eleves.xlsx', rows: fileStudents },
+    { name: 'contacts.xlsx', rows: fileContacts },
+    { name: 'transport.xlsx', rows: fileTransport }
+  ], D);
+
+  assert.strictEqual(result.stats.total, 2);
+  const r1 = result.rows.find(r => r.matricule === '2001');
+  assert.ok(r1);
+  assert.strictEqual(r1.gsm_papa, '06 61 00 11 22');
+  assert.strictEqual(r1.extra['Ligne Bus'], 'Ligne 12 - Racine');
+
+  const xlsxBuf = E.exportMulti(XLSX, result);
+  const wb = XLSX.read(xlsxBuf, { type: 'array' });
+  const s1Rows = XLSX.utils.sheet_to_json(wb.Sheets['Élèves & Parents']);
+  assert.ok(Object.keys(s1Rows[0]).includes('Ligne Bus'));
+});
+
 console.log(`Multi-Reconciliation : ${passed}/${passed + failed} réussis, ${failed} échecs`);
 if (failed > 0) process.exit(1);
