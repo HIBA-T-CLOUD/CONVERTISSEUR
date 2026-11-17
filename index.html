@@ -1,6 +1,6 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BOTI School — Smart Import & Fusion Scolaire</title>
+<title>BOTI School — Smart Import</title>
 <link rel="icon" type="image/svg+xml" href="brand/boti-mark.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,450 +37,222 @@
   --neutral: #4a5578;
   --neutral-soft: #eef0f6;
   --neutral-dot: #a7aecb;
-  --cta: linear-gradient(90deg, #ff6a1a 0%, #ff2d3a 55%, #ff0a8a 100%);
-  --signature: linear-gradient(90deg, #ff009d 0%, #8a3cf9 50%, #0a7cff 100%);
-  --lumiere: linear-gradient(180deg, #efeefd 0%, #f6f5fe 240px, #fcfcfd 560px);
+  --cta: linear-gradient(90deg,#ff6a1a 0%,#ff2d3a 55%,#ff0a8a 100%);
+  --signature: linear-gradient(90deg,#ff009d 0%,#8a3cf9 50%,#0a7cff 100%);
+  --lumiere: linear-gradient(180deg,#efeefd 0%,#f6f5fe 240px,#fcfcfd 560px);
   --font: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
+*{box-sizing:border-box;}
+body{margin:0;background:var(--background) var(--lumiere) no-repeat;color:var(--foreground);font:400 15px/1.5 var(--font);-webkit-font-smoothing:antialiased;min-height:100vh;}
+:focus-visible{outline:3px solid rgba(138,60,249,.35);outline-offset:2px;}
 
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  background: var(--background) var(--lumiere) no-repeat;
-  color: var(--foreground);
-  font: 400 15px/1.5 var(--font);
-  -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
-}
-:focus-visible {
-  outline: 3px solid rgba(138, 60, 249, .35);
-  outline-offset: 2px;
-}
+/* ── Nav ── */
+.nav{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border-bottom:1px solid var(--border);padding:12px 44px;position:sticky;top:0;z-index:100;}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand img{height:34px;width:auto;display:block;}
+.tool-pill{font-size:12px;font-weight:600;color:var(--primary);background:var(--secondary);border-radius:999px;padding:3px 12px;letter-spacing:.02em;}
 
-/* Nav Header */
-.nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 44px;
-}
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.brand img {
-  height: 34px;
-  width: auto;
-  display: block;
-}
-.tool-pill {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--primary);
-  background: var(--secondary);
-  border-radius: 999px;
-  padding: 3px 12px;
-  letter-spacing: 0.02em;
-}
+main{max-width:1240px;margin:0 auto;padding:36px 24px 80px;}
 
-main {
-  max-width: 1460px;
-  margin: 0 auto;
-  padding: 36px 44px 60px;
-}
+/* ── Page header ── */
+.page-header{margin-bottom:32px;}
+.kicker{font-size:13px;font-weight:600;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+h1{margin:0;font-size:38px;line-height:1.1;font-weight:800;letter-spacing:-.03em;color:var(--foreground);}
+.text-signature{background-image:var(--signature);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.lead{font-size:15px;color:var(--muted-foreground);margin:8px 0 0;line-height:1.5;}
 
-/* Page Header */
-.page-header {
-  margin-bottom: 24px;
-}
-.kicker {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted-foreground);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 6px;
-}
-h1 {
-  margin: 0;
-  font-size: 38px;
-  line-height: 1.1;
-  font-weight: 800;
-  letter-spacing: -.03em;
-  color: var(--foreground);
-}
-.text-signature {
-  background-image: var(--signature);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.lead {
-  font-size: 15px;
-  color: var(--muted-foreground);
-  margin: 8px 0 0;
-  line-height: 1.5;
-}
+/* ── Stepper ── */
+.stepper{display:flex;align-items:center;gap:0;margin-bottom:36px;overflow-x:auto;padding-bottom:4px;}
+.step-item{display:flex;align-items:center;gap:0;flex-shrink:0;}
+.step-btn{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:12px;border:none;background:transparent;cursor:default;transition:background .15s;}
+.step-num{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:var(--muted);color:var(--ink-3);font:700 13px var(--font);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.step-label{font-size:13px;font-weight:600;color:var(--ink-3);white-space:nowrap;transition:color .2s;}
+.step-sep{width:32px;height:2px;background:var(--border);flex-shrink:0;margin:0 2px;}
+.step-item.active .step-num{background:var(--primary);border-color:var(--primary);color:#fff;}
+.step-item.active .step-label{color:var(--primary);}
+.step-item.done .step-num{background:var(--success-dot);border-color:var(--success-dot);color:#fff;}
+.step-item.done .step-label{color:var(--success);}
+.step-item.done .step-sep{background:var(--success-dot);}
 
-/* Segmented switcher */
-.segment-switcher {
-  display: inline-flex;
-  background: var(--muted);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 4px;
-  gap: 4px;
-  margin-bottom: 26px;
-}
-.segment-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 40px;
-  padding: 0 18px;
-  border: 0;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--muted-foreground);
-  font: 600 13.5px var(--font);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.segment-btn:hover {
-  color: var(--foreground);
-}
-.segment-btn.active {
-  background: var(--card);
-  color: var(--primary);
-  box-shadow: 0 2px 8px rgba(12, 12, 94, .08);
-}
+/* ── Card ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px 32px;margin-bottom:22px;}
+.card h2{margin:0 0 14px;font-size:19px;font-weight:700;color:var(--foreground);display:flex;align-items:center;gap:10px;}
+.card-sub{font-size:14px;color:var(--muted-foreground);margin:0 0 20px;line-height:1.5;}
 
-/* Card Section */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 24px 28px;
-  margin-bottom: 22px;
-}
-.card h2 {
-  margin: 0 0 14px;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--foreground);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 22px;border:0;border-radius:12px;background:var(--cta);color:#fff;font:600 14px var(--font);box-shadow:0 8px 20px -10px rgba(255,45,58,.7);cursor:pointer;transition:transform .08s,box-shadow .15s;white-space:nowrap;}
+.btn:hover{box-shadow:0 10px 24px -10px rgba(255,45,58,.85);}
+.btn:active{transform:scale(.985);}
+.btn.ghost{background:var(--card);color:var(--foreground);border:1px solid var(--input);box-shadow:none;font-weight:500;}
+.btn.ghost:hover{background:var(--muted);border-color:var(--ink-3);}
+.btn.soft{background:var(--secondary);color:var(--primary);box-shadow:none;font-weight:600;}
+.btn.soft:hover{background:#e2e0fb;}
+.btn.sm{height:36px;padding:0 14px;font-size:13px;}
+.btn[disabled]{background:var(--muted)!important;color:var(--ink-3)!important;box-shadow:none!important;cursor:not-allowed;border:1px solid var(--border);}
 
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 20px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--cta);
-  color: #fff;
-  font: 600 14px var(--font);
-  box-shadow: 0 8px 20px -10px rgba(255, 45, 58, .7);
-  cursor: pointer;
-  transition: transform 0.08s ease, box-shadow 0.15s ease;
-  white-space: nowrap;
-}
-.btn:hover {
-  box-shadow: 0 10px 24px -10px rgba(255, 45, 58, .85);
-}
-.btn:active {
-  transform: scale(0.985);
-}
-.btn.ghost {
-  background: var(--card);
-  color: var(--foreground);
-  border: 1px solid var(--input);
-  box-shadow: none;
-  font-weight: 500;
-}
-.btn.ghost:hover {
-  background: var(--muted);
-  border-color: var(--ink-3);
-}
-.btn.soft {
-  background: var(--secondary);
-  color: var(--primary);
-  box-shadow: none;
-  font-weight: 600;
-}
-.btn.soft:hover {
-  background: #e2e0fb;
-}
-.btn[disabled] {
-  background: var(--muted) !important;
-  color: var(--ink-3) !important;
-  box-shadow: none !important;
-  cursor: not-allowed;
-  border: 1px solid var(--border);
+/* ── Inputs ── */
+input,select,textarea{height:44px;padding:0 14px;font:14px var(--font);color:var(--foreground);background:var(--card);border:1px solid var(--input);border-radius:12px;box-sizing:border-box;}
+input:focus-visible,select:focus-visible{outline:none;border-color:var(--ring);box-shadow:0 0 0 3px rgba(138,60,249,.25);}
+
+/* ── Dropzone ── */
+.dropzone{border:1.5px dashed var(--input);background:var(--precision);border-radius:20px;padding:44px 24px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px;}
+.dropzone:hover,.dropzone.dragover{border-color:var(--primary);background:var(--secondary);}
+.dropzone.has-files{border-style:solid;border-color:var(--success-dot);background:var(--success-soft);}
+
+/* ── File grid ── */
+.file-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:18px;}
+.file-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:8px;}
+.file-card-hdr{display:flex;align-items:center;justify-content:space-between;}
+.file-card-title{font-weight:700;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;}
+.file-card-role{display:flex;align-items:center;gap:6px;font-size:12px;margin-top:4px;}
+.file-card-role select{flex:1;height:34px;font-size:12.5px;padding:0 8px;border-radius:8px;}
+
+/* ── Info banner ── */
+.info-banner{display:flex;gap:12px;align-items:flex-start;background:var(--info-soft);border:1px solid #c0d8f5;border-radius:14px;padding:14px 18px;margin-bottom:20px;font-size:13.5px;color:var(--info);line-height:1.5;}
+.info-banner b{font-weight:700;}
+
+/* ── Template cards ── */
+.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:24px;}
+.tpl-card{border:2px solid var(--border);border-radius:18px;padding:20px;cursor:pointer;transition:all .15s;background:var(--card);position:relative;}
+.tpl-card:hover{border-color:var(--primary);background:var(--precision);}
+.tpl-card.selected{border-color:var(--primary);background:var(--precision);box-shadow:0 0 0 3px rgba(43,40,222,.15);}
+.tpl-card-icon{font-size:28px;margin-bottom:10px;}
+.tpl-card-name{font-weight:700;font-size:15px;color:var(--foreground);margin-bottom:4px;}
+.tpl-card-tag{display:inline-block;font-size:11px;font-weight:600;background:var(--secondary);color:var(--primary);border-radius:999px;padding:2px 10px;margin-bottom:8px;}
+.tpl-card-desc{font-size:12.5px;color:var(--muted-foreground);line-height:1.5;margin-bottom:10px;}
+.tpl-card-fields{font-size:11.5px;color:var(--ink-3);font-weight:500;}
+.tpl-badge{position:absolute;top:12px;right:12px;background:var(--success-dot);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:2px 8px;}
+
+/* ── Mapping table ── */
+.map-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:16px;background:var(--card);}
+table{border-collapse:separate;border-spacing:0;min-width:100%;width:max-content;font-size:13.5px;}
+th{background:var(--muted);color:var(--ink-3);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:10px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;white-space:nowrap;text-align:left;}
+td{padding:7px 12px;border-bottom:1px solid var(--hairline);color:var(--foreground);vertical-align:middle;white-space:nowrap;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--muted);}
+th.sticky-id{position:sticky;left:0;z-index:11;background:var(--muted);}
+td.sticky-id{position:sticky;left:0;background:var(--card);z-index:1;font-weight:700;text-align:center;border-right:1px solid var(--border);min-width:45px;}
+tr:hover td.sticky-id{background:var(--muted);}
+
+/* ── Status chips ── */
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;background:var(--neutral-soft);color:var(--neutral);white-space:nowrap;}
+.chip-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.chip.ok{background:var(--success-soft);color:var(--success);}
+.chip.warn{background:var(--warning-soft);color:var(--warning);border:1px solid var(--warning-border);}
+.chip.bad{background:var(--danger-soft);color:var(--destructive);}
+.chip.info{background:var(--info-soft);color:var(--info);}
+.chip.massar{background:var(--precision);color:var(--ring);}
+.chip.rule{background:var(--secondary);color:var(--primary);}
+.chip.neutral{background:var(--neutral-soft);color:var(--neutral);}
+
+/* ── KPI row ── */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:18px 0;}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center;cursor:pointer;transition:all .15s;}
+.kpi-card:hover{transform:translateY(-2px);border-color:var(--primary);}
+.kpi-card.active{border-color:var(--primary);background:var(--precision);box-shadow:0 0 0 2px rgba(43,40,222,.2);}
+.kpi-val{font-size:28px;font-weight:800;line-height:1.1;margin-bottom:4px;}
+.kpi-lbl{font-size:11.5px;font-weight:600;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.05em;}
+
+/* ── Full table ── */
+.wrap{overflow:auto;max-height:580px;border:1px solid var(--border);border-radius:16px;background:var(--card);margin-top:14px;}
+.tr-ok td:first-child{border-left:4px solid var(--success-dot);}
+.tr-verify td:first-child{border-left:4px solid var(--warning);}
+.tr-school td:first-child{border-left:4px solid var(--info-dot);}
+.tr-massar td:first-child{border-left:4px solid var(--ring);}
+
+input.c{width:100%;min-width:70px;height:30px;padding:0 7px;font:13px var(--font);border:1px solid transparent;border-radius:7px;background:transparent;color:var(--foreground);box-sizing:border-box;}
+input.c:hover{background:var(--card);border-color:var(--input);}
+input.c:focus{background:var(--card);border-color:var(--ring);outline:none;box-shadow:0 0 0 2px rgba(138,60,249,.2);}
+input.c[dir="rtl"]{text-align:right;}
+td.cell-empty{background-color:var(--warning-soft)!important;}
+input.c:placeholder-shown,input.c.is-empty{background-color:var(--warning-soft)!important;border:1.5px dashed var(--warning-border)!important;color:var(--warning)!important;font-weight:500;}
+input.c:placeholder-shown::placeholder,input.c.is-empty::placeholder{color:var(--warning)!important;font-style:italic;font-size:11px;font-weight:500;opacity:.85;}
+input.c:focus{background-color:#fff!important;border:2px solid var(--primary)!important;box-shadow:0 0 0 3px rgba(43,40,222,.2)!important;color:var(--foreground)!important;}
+
+/* ── Actions bar ── */
+.actions-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:18px;}
+.msg-box{font-weight:600;font-size:13px;color:var(--primary);}
+
+/* ── Spinner ── */
+.spinner{display:inline-block;width:20px;height:20px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Progress bar ── */
+.progress-bar{height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin:12px 0;}
+.progress-bar-fill{height:100%;background:var(--primary);border-radius:999px;transition:width .4s ease;}
+
+/* ── Rules bar ── */
+.rules-bar{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 20px;}
+.rule-chip{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px;font-size:13px;font-weight:500;color:var(--ink-2);background:var(--card);border:1px solid var(--border);}
+.rule-swatch{width:14px;height:14px;border-radius:4px;flex-shrink:0;}
+.rule-swatch.empty{background:var(--warning-soft);border:1.5px dashed var(--warning-border);}
+.rule-swatch.parent{background:var(--secondary);border:1.5px solid var(--primary);}
+
+/* ── Mapping table row styles ── */
+tr.map-row-empty td{background:var(--warning-soft)!important;}
+tr.map-row-rule td{background:var(--precision)!important;}
+
+@media(max-width:900px){
+  .nav{padding:10px 16px;}
+  main{padding:20px 14px 60px;}
+  h1{font-size:28px;}
+  .stepper{gap:0;}
+  .step-label{display:none;}
+  .step-sep{width:16px;}
 }
 
-/* Inputs & Selects */
-input, select, textarea {
-  height: 44px;
-  padding: 0 14px;
-  font: 14px var(--font);
-  color: var(--foreground);
-  background: var(--card);
-  border: 1px solid var(--input);
-  border-radius: 12px;
-  box-sizing: border-box;
-}
-input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: none;
-  border-color: var(--ring);
-  box-shadow: 0 0 0 3px rgba(138, 60, 249, .25);
-}
+/* ── v2 : parcours unique ── */
+.name-hint{display:flex;gap:14px;align-items:flex-start;background:linear-gradient(180deg,#fff7ec,#fff2e3);border:1px solid var(--warning-border);border-radius:16px;padding:16px 20px;margin-bottom:20px;color:var(--warning);font-size:14px;line-height:1.55;}
+.name-hint .ex{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.name-hint code,.info-banner code{background:rgba(255,255,255,.75);border:1px solid var(--warning-border);border-radius:6px;padding:1px 7px;font-size:12.5px;color:var(--foreground);}
+.file-card.guess{border-color:var(--warning-border);background:#fffdf8;}
+.role-tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;border-radius:999px;padding:3px 10px;background:var(--secondary);color:var(--primary);}
+.role-tag.guess{background:var(--warning-soft);color:var(--warning);}
+.an-file{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border:1px solid var(--border);border-radius:14px;margin-bottom:10px;background:var(--card);}
+.an-file .ic{font-size:22px;line-height:1.2;}
+.an-file b{font-size:14px;}
+.an-meta{font-size:12.5px;color:var(--muted-foreground);margin-top:2px;line-height:1.55;}
+.an-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0 6px;}
+.an-sum div{background:var(--precision);border-radius:14px;padding:12px 14px;}
+.an-sum b{display:block;font-size:24px;font-weight:800;line-height:1.1;}
+.an-sum span{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted-foreground);}
+.tpl-card.disabled{opacity:.92;}
+.tpl-card.disabled .tpl-badge{background:var(--neutral-dot);}
+.prev-panel{border:1px solid var(--border);border-radius:18px;padding:18px 20px;background:var(--precision);margin-bottom:6px;}
+.prev-panel h3{margin:0 0 4px;font-size:15px;}
+.prev-grp{margin-top:12px;}
+.prev-grp .lbl{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted-foreground);margin-bottom:6px;}
+.fchips{display:flex;flex-wrap:wrap;gap:6px;}
+.fchip{background:var(--card);border:1px solid var(--input);border-radius:8px;padding:3px 10px;font-size:12.5px;font-weight:500;color:var(--ink-2);}
+.fchip.papa{border-color:#c9c7f7;color:var(--primary);} .fchip.maman{border-color:#dcc6fb;color:var(--ring);}
+.soon-note{margin-top:14px;font-size:13px;color:var(--warning);background:var(--warning-soft);border:1px solid var(--warning-border);border-radius:12px;padding:10px 14px;}
+.sample-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.sample-bar .who{font-weight:700;padding:6px 14px;background:var(--secondary);color:var(--primary);border-radius:999px;font-size:13px;}
+.map-table-wrap table{width:100%;min-width:0;}
+.map-table-wrap td.wrap-td{white-space:normal;min-width:170px;max-width:300px;font-size:12.5px;color:var(--ink-2);line-height:1.45;}
+.map-table-wrap td.val{font-weight:700;font-size:14px;}
+.map-table-wrap tr.map-row-error td{background:var(--danger-soft)!important;}
+.map-table-wrap tr.map-row-warn td{background:#fffaf0!important;}
+.fix{display:block;margin-top:3px;color:var(--ink-3);font-size:12px;}
+.fix::before{content:"→ ";}
+.cov{font-size:12px;color:var(--ink-3);white-space:nowrap;}
+.cov .bar{display:block;width:70px;height:5px;border-radius:99px;background:var(--border);margin-top:3px;overflow:hidden;}
+.cov .bar i{display:block;height:100%;background:var(--success-dot);}
+input.c.bad{border:1.5px solid var(--destructive)!important;background:var(--danger-soft)!important;color:var(--destructive)!important;}
+input.c.warnv{border:1.5px solid var(--warning-border)!important;background:#fffaf0!important;}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0;}
+.modal-bg{position:fixed;inset:0;background:rgba(12,12,94,.45);display:flex;align-items:center;justify-content:center;z-index:500;padding:20px;}
+.modal-bg[hidden]{display:none;}
+.modal{background:var(--card);border-radius:22px;max-width:520px;width:100%;padding:28px 30px;box-shadow:0 30px 80px -20px rgba(12,12,94,.5);}
+.modal h3{margin:0 0 8px;font-size:20px;}
+.modal ul{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:8px;font-size:14px;}
+.modal li{display:flex;justify-content:space-between;gap:10px;background:var(--precision);padding:9px 14px;border-radius:10px;}
+.modal .row-btn{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;flex-wrap:wrap;}
+.done-box{text-align:center;padding:36px 10px;}
+.done-box .big{font-size:54px;}
+.done-box h2{justify-content:center;font-size:24px;}
+@media(max-width:900px){.map-table-wrap td.wrap-td{min-width:160px;}}
 
-/* Dropzone */
-.dropzone {
-  border: 1.5px dashed var(--input);
-  background: var(--precision);
-  border-radius: 20px;
-  padding: 38px 24px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 16px;
-}
-.dropzone:hover, .dropzone.dragover {
-  border-color: var(--primary);
-  background: var(--secondary);
-}
-
-/* File Grid */
-.file-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-  margin-top: 18px;
-}
-.file-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.file-card-hdr {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.file-card-title {
-  font-weight: 700;
-  font-size: 13.5px;
-  color: var(--foreground);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 220px;
-}
-.file-card-role {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-}
-.file-card-role select {
-  flex: 1;
-  height: 36px;
-  font-size: 12.5px;
-  padding: 0 8px;
-}
-
-/* KPI Stats Cards */
-.kpi-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 16px;
-  margin: 18px 0;
-}
-.kpi-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 18px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-.kpi-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--primary);
-}
-.kpi-card.active {
-  border-color: var(--primary);
-  background: var(--precision);
-  box-shadow: 0 0 0 2px rgba(43, 40, 222, .2);
-}
-.kpi-val {
-  font-size: 28px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
-  margin-bottom: 4px;
-  color: var(--foreground);
-}
-.kpi-lbl {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted-foreground);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Chips & Badges */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: 999px;
-  padding: 3px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  background: var(--neutral-soft);
-  color: var(--neutral);
-  white-space: nowrap;
-}
-.chip-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.chip.ok { background: var(--success-soft); color: var(--success); }
-.chip.warn { background: var(--warning-soft); color: var(--warning); border: 1px solid var(--warning-border); }
-.chip.bad { background: var(--danger-soft); color: var(--destructive); }
-.chip.info { background: var(--info-soft); color: var(--info); }
-.chip.massar { background: var(--precision); color: var(--ring); }
-.chip.neutral { background: var(--neutral-soft); color: var(--neutral); }
-
-/* Table Wrapper */
-.wrap {
-  overflow: auto;
-  max-height: 580px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--card);
-  margin-top: 14px;
-}
-table {
-  border-collapse: separate;
-  border-spacing: 0;
-  min-width: 100%;
-  width: max-content;
-  font-size: 13.5px;
-}
-th {
-  background: var(--muted);
-  color: var(--ink-3);
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  white-space: nowrap;
-  text-align: left;
-}
-td {
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--hairline);
-  color: var(--foreground);
-  font-variant-numeric: tabular-nums;
-  vertical-align: middle;
-  white-space: nowrap;
-}
-tr:hover td {
-  background: var(--muted);
-}
-.sticky-id {
-  position: sticky;
-  left: 0;
-  background: var(--card);
-  z-index: 1;
-  font-weight: 700;
-  text-align: center;
-  border-right: 1px solid var(--border);
-  min-width: 45px;
-}
-th.sticky-id {
-  z-index: 11;
-  background: var(--muted);
-}
-
-.tr-ok td:first-child { border-left: 4px solid var(--success-dot); }
-.tr-verify td:first-child { border-left: 4px solid var(--warning); }
-.tr-school td:first-child { border-left: 4px solid var(--info-dot); }
-.tr-massar td:first-child { border-left: 4px solid var(--ring); }
-
-input.c {
-  width: 100%;
-  min-width: 120px;
-  height: 32px;
-  padding: 0 8px;
-  font: 13px var(--font);
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--foreground);
-  box-sizing: border-box;
-}
-input.c:hover {
-  background: var(--card);
-  border-color: var(--input);
-}
-input.c:focus {
-  background: var(--card);
-  border-color: var(--ring);
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(138, 60, 249, .2);
-}
-input.c[dir="rtl"] {
-  text-align: right;
-}
-
-.actions-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 16px;
-}
-.msg-box {
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--primary);
-  margin-left: 8px;
-}
-
-@media (max-width: 900px) {
-  .nav { padding: 10px 16px; }
-  .brand img { height: 28px; }
-  main { padding: 20px 16px 40px; }
-  h1 { font-size: 30px; }
-}
 </style>
 </head><body>
 
@@ -489,775 +261,430 @@ input.c[dir="rtl"] {
     <img src="brand/boti-logo.svg" alt="BOTI School">
     <span class="tool-pill">Smart Import</span>
   </div>
-  <div style="display:flex;align-items:center;gap:12px">
-    <span class="chip ok">
-      <span class="chip-dot" style="background:var(--success-dot)"></span>
-      100% Client-Side · Données Privées Sécurisées
-    </span>
-  </div>
+  <span class="chip ok"><span class="chip-dot" style="background:var(--success-dot)"></span>100% dans votre navigateur · données privées</span>
 </header>
 
 <main>
-  <!-- En-tête de page Lumière -->
   <div class="page-header">
-    <div class="kicker">Importation & Réconciliation Intelligente</div>
-    <h1>Convertisseur & Fusion de données <span class="text-signature">BOTI</span></h1>
-    <p class="lead">Consolidation automatique multi-fichiers (PDF, Excel, Massar) et analyseur unitaire selon les canevas scolaires.</p>
+    <div class="kicker">Import scolaire intelligent</div>
+    <h1>Importer vos données <span class="text-signature">dans BOTI</span></h1>
+    <p class="lead">Un seul parcours, que vous ayez un fichier ou plusieurs : déposez, vérifiez, validez.</p>
   </div>
 
-  <!-- Sélecteur segmenté des Modes -->
-  <nav class="segment-switcher">
-    <button class="segment-btn active" id="tab_multi" onclick="setMode('multi')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      Fusion Multi-fichiers (École + Parents + Massar)
-    </button>
-    <button class="segment-btn" id="tab_single" onclick="setMode('single')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      Analyseur Unitaire (Fichier unique Excel / CSV)
-    </button>
-  </nav>
+  <div class="stepper" id="stepper">
+    <div class="step-item active" id="sd1"><button class="step-btn" onclick="go(1)"><span class="step-num">1</span><span class="step-label">Fichiers</span></button></div><div class="step-sep"></div>
+    <div class="step-item" id="sd2"><button class="step-btn" onclick="go(2)"><span class="step-num">2</span><span class="step-label">Analyse</span></button></div><div class="step-sep"></div>
+    <div class="step-item" id="sd3"><button class="step-btn" onclick="go(3)"><span class="step-num">3</span><span class="step-label">Type d'import</span></button></div><div class="step-sep"></div>
+    <div class="step-item" id="sd4"><button class="step-btn" onclick="go(4)"><span class="step-num">4</span><span class="step-label">Champs & exemple</span></button></div><div class="step-sep"></div>
+    <div class="step-item" id="sd5"><button class="step-btn" onclick="go(5)"><span class="step-num">5</span><span class="step-label">Validation & import</span></button></div>
+  </div>
 
-  <!-- ==================== MODE 2 : FUSION MULTI-FICHIERS ==================== -->
-  <div id="view_multi">
+  <!-- 1 — FICHIERS -->
+  <div id="view_1">
     <section class="card">
-      <h2>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-        1. Dépôt des fichiers scolaires (PDF ou Excel/CSV)
-      </h2>
-      <p style="color:var(--muted-foreground);margin-top:0;font-size:14px">
-        Déposez <b>tous les fichiers de l'établissement</b>, quelle que soit leur organisation : listes globales ou par classe (multi-fichiers / multi-feuilles), annuaires de contacts parents, exports Massar (AR/FR), fichiers de transport, santé, activités, etc. Le moteur consolide et réconcilie automatiquement toutes les données dispersées par élève.
-      </p>
+      <h2>📁 Importer les fichiers de l'école</h2>
+      <p class="card-sub">Un seul fichier ou plusieurs (Excel, CSV, PDF) : le déroulé est exactement le même.</p>
 
-      <div class="dropzone" id="multi_drop" onclick="$('multi_input').click()">
+      <div class="name-hint">
+        <div style="font-size:26px;line-height:1">✍️</div>
+        <div>
+          <b>Important : donnez à vos fichiers un nom qui reflète leur contenu.</b><br>
+          L'outil s'appuie sur le nom pour savoir ce que contient chaque fichier (élèves, parents, Massar…). Un nom clair évite les erreurs de rapprochement.
+          <div class="ex"><code>eleves.xlsx</code><code>parents.xlsx</code><code>massar.xlsx</code><code>inscriptions_2026.pdf</code><code>contacts_parents.pdf</code></div>
+          <div style="margin-top:8px;font-size:13px">À éviter : <code>Feuil1.xlsx</code> · <code>export (3).xlsx</code> · <code>nouveau.xlsx</code></div>
+        </div>
+      </div>
+
+      <div class="dropzone" id="drop" onclick="$('file_input').click()">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8892b8" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <div style="font-weight:700;font-size:16px;margin-top:8px;color:var(--foreground)">Cliquez ou déposez vos fichiers ici</div>
-        <p style="margin:4px 0 0;color:var(--muted-foreground);font-size:13px">Formats acceptés : PDF (.pdf), Excel (.xlsx, .xls), CSV (.csv) — Multi-fichiers sans limite & détection automatique des rôles</p>
-        <input type="file" id="multi_input" accept=".xlsx,.xls,.csv,.pdf" multiple style="display:none" onchange="handleMultiFiles(this.files)">
+        <div style="font-weight:700;font-size:16px;margin-top:10px">Cliquez ou glissez vos fichiers ici</div>
+        <p style="margin:4px 0 0;color:var(--muted-foreground);font-size:13px">Excel (.xlsx / .xls), CSV ou PDF — un ou plusieurs à la fois</p>
+        <input type="file" id="file_input" accept=".xlsx,.xls,.csv,.pdf" multiple style="display:none" onchange="addFiles(this.files);this.value=''">
       </div>
+      <div id="file_list" class="file-grid"></div>
 
-      <div id="multi_file_list" class="file-grid"></div>
-
-      <!-- Modèle d'output Boti Cible (Optionnel) -->
-      <div style="margin-top:20px;padding:18px 20px;background:var(--precision);border:1.5px dashed var(--input);border-radius:16px">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-          <div>
-            <div style="font-weight:700;color:var(--foreground);display:flex;align-items:center;gap:8px">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-              <span>Modèle d'output / Canevas cible souhaité (Optionnel)</span>
-              <span class="tool-pill">Format personnalisé</span>
-            </div>
-            <p style="margin:4px 0 0;font-size:13px;color:var(--muted-foreground)">
-              Déposez ici votre fichier Excel cible Boti si vous souhaitez projeter les élèves consolidés sur ses colonnes, feuilles et styles exacts. Si aucun modèle n'est fourni, le fichier sera généré selon le standard Boti de référence (Élèves & Parents, À vérifier, Notes).
-            </p>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <input type="file" id="multi_tpl_input" accept=".xlsx,.xls" style="display:none" onchange="handleMultiTemplate(this.files[0])">
-            <button type="button" class="btn ghost" style="height:38px;font-size:13px" onclick="$('multi_tpl_input').click()">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Choisir un modèle d'output (.xlsx)
-            </button>
-            <button type="button" id="btn_clear_multi_tpl" class="btn ghost" style="height:38px;font-size:12px;display:none;color:var(--destructive)" onclick="clearMultiTemplate()">
-              ✕ Retirer le modèle
-            </button>
-          </div>
-        </div>
-
-        <div id="multi_tpl_badge" style="margin-top:12px;display:none;padding:12px 14px;background:var(--success-soft);border:1px solid #a7f3d0;border-radius:12px;font-size:13px;color:var(--success)">
-          <div style="font-weight:700;display:flex;align-items:center;gap:6px">
-            <span>✓ Modèle d'output actif :</span>
-            <span id="multi_tpl_name" style="text-decoration:underline"></span>
-            <span id="multi_tpl_cols_count" class="chip ok" style="margin-left:6px"></span>
-          </div>
-          <div id="multi_tpl_cols_list" style="margin-top:6px;font-size:12px;line-height:1.6;word-break:break-word"></div>
-        </div>
-      </div>
-
-      <div class="actions-bar" style="margin-top:20px">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <button class="btn" id="btn_merge" onclick="runMerge()" disabled>🚀 Lancer la fusion et réconciliation</button>
-          <button class="btn ghost" onclick="clearMulti()">Effacer les fichiers</button>
-          <span id="multi_msg" class="msg-box"></span>
+      <div class="actions-bar">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <button class="btn" id="btn_analyse" onclick="startAnalysis()" disabled>🔍 Analyser</button>
+          <button class="btn ghost" onclick="resetAll()">✖ Tout effacer</button>
+          <span id="msg1" class="msg-box"></span>
         </div>
       </div>
     </section>
+  </div>
 
-    <section class="card" id="multi_results" hidden>
-      <h2>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
-        2. Résultats de la Réconciliation & Prévisualisation
-      </h2>
+  <!-- 2 — ANALYSE -->
+  <div id="view_2" hidden>
+    <section class="card">
+      <h2 id="an_title">⏳ Analyse en cours…</h2>
+      <div id="an_status" style="color:var(--muted-foreground);font-size:14px;margin-bottom:6px">Initialisation…</div>
+      <div class="progress-bar"><div class="progress-bar-fill" id="an_bar" style="width:5%"></div></div>
+      <div id="an_files" style="margin-top:16px"></div>
+      <div id="an_sum"></div>
+      <div class="actions-bar">
+        <button class="btn ghost sm" onclick="go(1)">← Modifier les fichiers</button>
+        <button class="btn" id="btn_an_next" onclick="go(3)" disabled>Choisir le type d'import →</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- 3 — TYPE D'IMPORT -->
+  <div id="view_3" hidden>
+    <section class="card">
+      <h2>🧩 Quel type d'import souhaitez-vous produire ?</h2>
+      <p class="card-sub">Ces modèles sont définis par BOTI. Cliquez sur un modèle pour voir l'aperçu de ses champs.</p>
+      <div class="tpl-grid" id="tpl_grid"></div>
+      <div class="prev-panel" id="tpl_preview"></div>
+      <div class="actions-bar">
+        <button class="btn ghost sm" onclick="go(2)">← Retour</button>
+        <button class="btn" id="btn_tpl_next" onclick="buildMapping()">Voir les champs et un exemple →</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- 4 — CHAMPS & EXEMPLE -->
+  <div id="view_4" hidden>
+    <section class="card">
+      <h2>🔎 Champs du modèle · résultat sur un exemple</h2>
+      <p class="card-sub">Chaque champ du modèle est listé verticalement avec la valeur obtenue pour <b>un élève</b>, la façon dont elle a été trouvée, et un commentaire si quelque chose est à corriger.</p>
+
+      <div class="sample-bar">
+        <button class="btn ghost sm" onclick="moveSample(-1)">‹</button>
+        <span class="who" id="sample_who"></span>
+        <button class="btn ghost sm" onclick="moveSample(1)">›</button>
+        <button class="btn soft sm" onclick="moveSample(0, true)">🎲 Autre exemple</button>
+      </div>
+      <div class="rules-bar">
+        <span class="rule-chip"><span class="chip ok" style="padding:2px 8px">OK</span> trouvé et valide</span>
+        <span class="rule-chip"><span class="chip rule" style="padding:2px 8px">Règle</span> valeur par défaut BOTI (Père / Mère)</span>
+        <span class="rule-chip"><span class="chip warn" style="padding:2px 8px">Vide</span> non trouvé → à compléter</span>
+        <span class="rule-chip"><span class="chip bad" style="padding:2px 8px">À corriger</span> format invalide</span>
+      </div>
+      <div class="map-table-wrap" id="map_wrap"></div>
+      <div class="actions-bar" style="margin-top:16px">
+        <button class="btn ghost sm" onclick="go(3)">← Changer le type</button>
+        <button class="btn" onclick="showFull()">Valider ce mapping · voir tous les élèves →</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- 5 — TABLEAU COMPLET -->
+  <div id="view_5" hidden>
+    <section class="card" id="full_card">
+      <h2>✅ Vérification finale · modification manuelle · import</h2>
+      <p class="card-sub">Toutes les données telles qu'elles seront importées. Cliquez dans une case pour la modifier. Rouge = format invalide, ambre = vide.</p>
 
       <div class="kpi-row">
-        <div class="kpi-card active" onclick="filterMulti('')">
-          <div class="kpi-val" id="kpi_total">0</div>
-          <div class="kpi-lbl">Total Consolidé</div>
-        </div>
-        <div class="kpi-card" onclick="filterMulti('OK')">
-          <div class="kpi-val" style="color:var(--success)" id="kpi_ok">0</div>
-          <div class="kpi-lbl">Validés (OK)</div>
-        </div>
-        <div class="kpi-card" onclick="filterMulti('verify')">
-          <div class="kpi-val" style="color:var(--warning)" id="kpi_verify">0</div>
-          <div class="kpi-lbl">À vérifier</div>
-        </div>
-        <div class="kpi-card" onclick="filterMulti('ecole')">
-          <div class="kpi-val" style="color:var(--info)" id="kpi_ecole">0</div>
-          <div class="kpi-lbl">École seule</div>
-        </div>
-        <div class="kpi-card" onclick="filterMulti('massar')">
-          <div class="kpi-val" style="color:var(--ring)" id="kpi_massar">0</div>
-          <div class="kpi-lbl">Massar seul</div>
-        </div>
+        <div class="kpi-card active" onclick="setFilter('')"><div class="kpi-val" id="k_total">0</div><div class="kpi-lbl">Lignes</div></div>
+        <div class="kpi-card" onclick="setFilter('incomplete')"><div class="kpi-val" style="color:var(--warning)" id="k_empty">0</div><div class="kpi-lbl">Lignes incomplètes</div></div>
+        <div class="kpi-card" onclick="setFilter('bad')"><div class="kpi-val" style="color:var(--destructive)" id="k_bad">0</div><div class="kpi-lbl">Cellules invalides</div></div>
+        <div class="kpi-card" onclick="setFilter('verify')"><div class="kpi-val" style="color:var(--info)" id="k_verify">0</div><div class="kpi-lbl">À vérifier (rapprochement)</div></div>
       </div>
 
+      <div class="actions-bar" style="margin-top:0">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <select id="fl" onchange="renderFull()">
+            <option value="">Toutes les lignes</option>
+            <option value="incomplete">Lignes incomplètes</option>
+            <option value="bad">Cellules invalides</option>
+            <option value="verify">À vérifier (rapprochement)</option>
+          </select>
+          <input type="text" id="q" placeholder="Rechercher (nom, matricule, tel…)" oninput="renderFull()" style="min-width:230px">
+          <select id="lim" onchange="renderFull()" style="width:90px"><option value="50">50</option><option value="100" selected>100</option><option value="250">250</option><option value="all">Tout</option></select>
+          <span id="cnt" class="chip neutral"></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <button class="btn soft sm" onclick="flipNames()">⇄ Inverser Nom / Prénom</button>
+          <button class="btn ghost sm" onclick="downloadXlsx()">📥 Excel</button>
+          <button class="btn ghost sm" onclick="downloadCsv()">📄 CSV</button>
+        </div>
+      </div>
+      <div class="wrap" id="full_wrap"></div>
       <div class="actions-bar">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <span style="font-size:13px;font-weight:600;color:var(--muted-foreground)">Filtre :</span>
-          <select id="multi_fl" onchange="renderMultiTable()">
-            <option value="">Tous les élèves</option>
-            <option value="OK">Validés (OK)</option>
-            <option value="verify">À vérifier</option>
-            <option value="ecole">École seule (non présents sur Massar)</option>
-            <option value="massar">Massar seul (non inscrits école)</option>
-          </select>
-          <input type="text" id="multi_q" placeholder="Recherche élève, matricule, parent..." oninput="renderMultiTable()" style="min-width:240px">
-          <span style="font-size:13px;font-weight:600;color:var(--muted-foreground)">Affichage :</span>
-          <select id="multi_lim" onchange="renderMultiTable()" style="width:85px">
-            <option value="50">50</option>
-            <option value="100" selected>100</option>
-            <option value="250">250</option>
-            <option value="all">Tout</option>
-          </select>
-          <span id="multi_badge_count" class="chip neutral"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <button type="button" class="btn soft" onclick="flipNamesMulti()" title="Inverser Nom et Prénom pour tous les élèves">⇄ Inverser Nom / Prénom</button>
-          <button class="btn" id="btn_multi_export" onclick="exportMultiExcel()">📥 Télécharger le fichier Boti consolidé (.xlsx)</button>
-          <button class="btn ghost" onclick="exportMultiReport()">📑 Rapport (.json)</button>
-        </div>
-      </div>
-
-      <div class="wrap" id="multi_table_wrap"></div>
-    </section>
-  </div>
-
-  <!-- ==================== MODE 1 : FICHIER UNIQUE (ANALYSEUR) ==================== -->
-  <div id="view_single" hidden>
-    <section class="card">
-      <h2>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        1. Importation d'un fichier unique
-      </h2>
-      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:12px 0">
-        <div>
-          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--foreground)">Fichier source (.xlsx, .xls, .csv) :</label>
-          <input type="file" id="fs" accept=".xlsx,.xls,.csv" style="height:auto;padding:8px">
-        </div>
-        <div>
-          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--foreground)">Modèle Boti cible (Optionnel) :</label>
-          <input type="file" id="ft" accept=".xlsx,.xls" style="height:auto;padding:8px">
-        </div>
-      </div>
-      <div class="actions-bar" style="margin-top:16px">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <button class="btn" onclick="go()">Analyser le fichier</button>
-          <button class="btn ghost" onclick="wipe()">Effacer les données</button>
-          <span id="msg" class="msg-box"></span>
-        </div>
+        <button class="btn ghost sm" onclick="go(4)">← Retour aux champs</button>
+        <button class="btn" onclick="askImport()">✔ Valider et importer</button>
       </div>
     </section>
-
-    <section class="card" id="sm" hidden>
-      <h2>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-        2. Mapping des colonnes (modifiable)
-      </h2>
-      <p style="color:var(--muted-foreground);font-size:13.5px">
-        En-tête détecté ligne <input id="hr" type="number" style="width:65px;height:36px" onchange="go(this.value-1)"> — 
-        Ordre nom complet : 
-        <select id="no" onchange="build()" style="height:36px">
-          <option value="nom_first" selected>NOM Prénom / النسب الإسم (standard)</option>
-          <option value="prenom_first">Prénom NOM / الإسم النسب</option>
-        </select>
-      </p>
-      <div class="wrap" id="map"></div>
-    </section>
-
-    <section class="card" id="sp" hidden>
-      <h2>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        3. Prévisualisation / correction
-      </h2>
-      <div class="actions-bar">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <span style="font-size:13px;font-weight:600;color:var(--muted-foreground)">Filtre :</span>
-          <select id="fl" onchange="show()">
-            <option value="">Tous</option>
-            <option value="valide">Valide</option>
-            <option value="à vérifier">À vérifier</option>
-            <option value="erreur">Erreur</option>
-          </select>
-          <input id="q" placeholder="Recherche rapide..." oninput="show()" style="min-width:200px">
-          <span style="font-size:13px;font-weight:600;color:var(--muted-foreground)">Affichage :</span>
-          <select id="limit" onchange="show()" style="width:85px">
-            <option value="50">50</option>
-            <option value="100" selected>100</option>
-            <option value="250">250</option>
-            <option value="all">Tout</option>
-          </select>
-          <button type="button" class="btn ghost" style="height:38px;font-size:12.5px" onclick="flip()">⇄ Inverser Nom / Prénom</button>
-          <span id="count_badge" class="chip neutral"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <button class="btn" onclick="exp()">Télécharger le fichier Boti (.xlsx)</button>
-          <button class="btn ghost" onclick="rep()">Télécharger le rapport</button>
+    <section class="card" id="done_card" hidden>
+      <div class="done-box">
+        <div class="big">🎉</div>
+        <h2>Import validé</h2>
+        <p class="card-sub" id="done_msg"></p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px">
+          <button class="btn" onclick="downloadXlsx()">📥 Télécharger le fichier importé</button>
+          <button class="btn ghost" onclick="backToTable()">← Revenir au tableau</button>
+          <button class="btn ghost" onclick="resetAll()">🔄 Nouvel import</button>
         </div>
       </div>
-      <div class="wrap" id="pv" style="margin-top:14px"></div>
-      <pre id="rp" style="background:var(--muted);color:var(--foreground);border:1px solid var(--border);padding:14px;border-radius:12px;max-height:160px;overflow:auto;margin-top:14px;font-size:12px"></pre>
     </section>
   </div>
 </main>
 
-<script src="vendor/xlsx.full.min.js"></script>
+<div class="modal-bg" id="modal" hidden>
+  <div class="modal">
+    <h3>Confirmer l'import</h3>
+    <div style="color:var(--muted-foreground);font-size:14px">Vous êtes sur le point d'importer les données ci-dessous.</div>
+    <ul id="modal_list"></ul>
+    <div id="modal_warn" class="soon-note" style="display:none"></div>
+    <div class="row-btn"><button class="btn ghost" onclick="$('modal').hidden=true">Annuler</button><button class="btn" onclick="doImport()">Oui, importer</button></div>
+  </div>
+</div>
+
+<script src="vendor/xlsx.bundle.js"></script>
 <script src="vendor/pdf.min.js"></script>
 <script src="js/engine.js"></script>
-
 <script>
-const E = BotiEngine;
-const $ = i => document.getElementById(i);
-let D = null;
+const E = BotiEngine, $ = i => document.getElementById(i);
+if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js';
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-// Initialize PDF.js worker
-if (window.pdfjsLib) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js';
-}
+/* ───────── État ───────── */
+let D = null, files = [], sources = [], analysis = [], result = null;
+let tplKey = 'boti_eleves_parents', previewKey = 'boti_eleves_parents', sampleIdx = 0, mapping = [];
+let maxStep = 1, curStep = 1;
+const ROLE_LABEL = { inscriptions: "Liste d'élèves", contacts: 'Annuaire parents', massar: 'Export Massar', generic: 'Rôle deviné par le contenu' };
 
-async function initDict() {
-  if (!D) {
-    const raw = await (await fetch('data/dictionaries.json')).json();
-    D = E.loadDict(raw);
+async function initDict() { if (!D) D = E.loadDict(await (await fetch('data/dictionaries.json')).json()); }
+
+/* ───────── Navigation ───────── */
+function go(n) { if (n > maxStep) return; show(n); }
+function show(n) {
+  for (let i = 1; i <= 5; i++) {
+    $('view_' + i).hidden = i !== n;
+    const d = $('sd' + i); d.classList.remove('active', 'done');
+    if (i < n) d.classList.add('done'); if (i === n) d.classList.add('active');
   }
+  curStep = n; if (n > maxStep) maxStep = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+function unlock(n) { maxStep = Math.max(maxStep, n); }
 
-function setMode(m) {
-  $('tab_multi').classList.toggle('active', m === 'multi');
-  $('tab_single').classList.toggle('active', m === 'single');
-  $('view_multi').hidden = (m !== 'multi');
-  $('view_single').hidden = (m !== 'single');
-}
+/* ───────── Étape 1 : fichiers ───────── */
+const dz = $('drop');
+['dragenter', 'dragover'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.add('dragover'); }));
+['dragleave', 'drop'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.remove('dragover'); }));
+dz.addEventListener('drop', ev => { if (ev.dataTransfer && ev.dataTransfer.files) addFiles(ev.dataTransfer.files); });
 
-// ==================== LOGIQUE MODE 2 : FUSION MULTI-FICHIERS ====================
-let multiFiles = [];
-let multiResult = null;
-let multiTplWb = null, multiTplInfo = null, multiTplFile = null;
-
-const dropzone = $('multi_drop');
-['dragenter', 'dragover'].forEach(e => dropzone.addEventListener(e, ev => { ev.preventDefault(); dropzone.classList.add('dragover'); }));
-['dragleave', 'drop'].forEach(e => dropzone.addEventListener(e, ev => { ev.preventDefault(); dropzone.classList.remove('dragover'); }));
-dropzone.addEventListener('drop', ev => {
-  if (ev.dataTransfer && ev.dataTransfer.files) handleMultiFiles(ev.dataTransfer.files);
-});
-
-async function handleMultiFiles(files) {
-  await initDict();
-  for (let f of files) {
+function addFiles(list) {
+  for (const f of list) {
+    if (files.some(x => x.name === f.name && x.size === f.size)) continue;
     const ext = f.name.split('.').pop().toLowerCase();
-    const role = E.detectFileRole(f.name);
-    multiFiles.push({ file: f, name: f.name, size: f.size, ext, role, parsed: null });
+    files.push({ file: f, name: f.name, size: f.size, ext, role: E.detectFileRole(f.name) });
   }
-  renderMultiFileList();
+  renderFiles();
+}
+function renderFiles() {
+  const c = $('file_list'); $('msg1').textContent = '';
+  $('btn_analyse').disabled = !files.length; dz.classList.toggle('has-files', !!files.length);
+  c.innerHTML = files.map((it, i) => {
+    const guess = it.role === 'generic';
+    return `<div class="file-card ${guess ? 'guess' : ''}">
+      <div class="file-card-hdr"><span class="file-card-title" title="${esc(it.name)}">${it.ext === 'pdf' ? '📄' : '📊'} ${esc(it.name)}</span>
+      <button class="btn ghost" style="height:28px;padding:0 10px;font-size:11px" onclick="rmFile(${i})">✖</button></div>
+      <div style="font-size:12px;color:var(--muted-foreground)">${(it.size / 1024).toFixed(1)} Ko · ${it.ext.toUpperCase()}</div>
+      <div class="file-card-role"><span class="role-tag ${guess ? 'guess' : ''}">${guess ? '⚠️' : '✓'} ${ROLE_LABEL[it.role]}</span></div>
+      ${guess ? `<div style="font-size:12px;color:var(--warning);line-height:1.4">Le nom ne dit pas ce que contient le fichier. Renommez-le (ex : <code>eleves.xlsx</code>) pour plus de fiabilité.</div>` : ''}
+    </div>`;
+  }).join('');
+}
+function rmFile(i) { files.splice(i, 1); renderFiles(); }
+function resetAll() {
+  files = []; sources = []; analysis = []; result = null; mapping = []; maxStep = 1; sampleIdx = 0; tplKey = previewKey = 'boti_eleves_parents';
+  $('done_card').hidden = true; $('full_card').hidden = false; $('modal').hidden = true; $('q').value = ''; $('fl').value = '';
+  renderFiles(); show(1);
 }
 
-function renderMultiFileList() {
-  const container = $('multi_file_list');
-  if (multiFiles.length === 0) {
-    container.innerHTML = '';
-    $('btn_merge').disabled = true;
-    return;
-  }
-  $('btn_merge').disabled = false;
-  container.innerHTML = multiFiles.map((item, idx) => `
-    <div class="file-card">
-      <div class="file-card-hdr">
-        <span class="file-card-title" title="${item.name}">${item.ext === 'pdf' ? '📄' : '📊'} ${item.name}</span>
-        <button class="btn ghost" style="height:28px;padding:0 8px;font-size:11px" onclick="removeMultiFile(${idx})">✖</button>
-      </div>
-      <div style="font-size:12px;color:var(--muted-foreground)">Taille : ${(item.size/1024).toFixed(1)} Ko · Format : ${item.ext.toUpperCase()}</div>
-      <div class="file-card-role">
-        <span style="font-weight:600;color:var(--muted-foreground)">Rôle :</span>
-        <select onchange="multiFiles[${idx}].role = this.value">
-          <option value="auto" ${item.role === 'auto' ? 'selected' : ''}>🔄 Détection & Fusion automatique</option>
-          <option value="inscriptions" ${item.role === 'inscriptions' ? 'selected' : ''}>📄 Liste d'élèves / Inscriptions / Classes</option>
-          <option value="contacts" ${item.role === 'contacts' ? 'selected' : ''}>📞 Annuaire parents / Contacts</option>
-          <option value="massar" ${item.role === 'massar' ? 'selected' : ''}>🏛️ Export Massar (AR ou FR)</option>
-          <option value="transport" ${item.role === 'transport' ? 'selected' : ''}>🚌 Transport / Navette scolaire</option>
-          <option value="sante" ${item.role === 'sante' ? 'selected' : ''}>🩺 Dossier médical / Allergies</option>
-          <option value="frais" ${item.role === 'frais' ? 'selected' : ''}>💳 Paiements / Frais scolarité</option>
-          <option value="generic" ${item.role === 'generic' ? 'selected' : ''}>⚙️ Données complémentaires / Autre</option>
-        </select>
-      </div>
-    </div>
-  `).join('');
+/* ───────── Étape 2 : analyse ───────── */
+function prog(p, t) { $('an_bar').style.width = p + '%'; if (t) $('an_status').textContent = t; }
+
+// Objets-lignes depuis une feuille : détecte la ligne d'en-tête, rend les noms de colonnes uniques, convertit les dates Excel.
+function sheetToObjects(wb, name) {
+  const t = E.analyzeSheet(XLSX, wb, name, D);
+  if (t.headerRow < 0 || !t.rows.length) return null;
+  const seen = {}, heads = t.headers.map((h, i) => { let k = h || ('col_' + (i + 1)); if (seen[k]) { seen[k]++; k = k + '_' + seen[k]; } else seen[k] = 1; return k; });
+  const dateCols = new Set(t.mapping.filter(m => m.key === 'date_naissance' || m.key === 'date_inscription').map(m => m.col));
+  const rows = t.rows.map(r => { const o = {}; heads.forEach((h, i) => { let v = r[i]; if (v === '' || v == null) return; if (dateCols.has(i)) { const p = E.parseDate(v); v = p.val || String(v); } o[h] = v; }); return o; });
+  return { rows, headers: t.headers.filter(Boolean), recognized: t.mapping.filter(m => m.key).length, total: t.mapping.length };
 }
 
-function removeMultiFile(idx) {
-  multiFiles.splice(idx, 1);
-  renderMultiFileList();
-}
-
-function clearMulti() {
-  multiFiles = [];
-  multiResult = null;
-  $('multi_results').hidden = true;
-  $('multi_msg').textContent = '';
-  renderMultiFileList();
-}
-
-async function handleMultiTemplate(file) {
-  if (!file) return;
+async function startAnalysis() {
+  show(2); maxStep = 2; $('an_title').textContent = '⏳ Analyse en cours…'; $('an_files').innerHTML = ''; $('an_sum').innerHTML = ''; $('btn_an_next').disabled = true;
+  sources = []; analysis = []; result = null; mapping = []; sampleIdx = 0;
   try {
-    await initDict();
-    multiTplFile = file;
-    const buf = await file.arrayBuffer();
-    multiTplWb = XLSX.read(buf, { type: 'array', cellStyles: true });
-    multiTplInfo = E.templateInfo(XLSX, multiTplWb, D);
-    multiTplInfo.name = file.name;
-    E.useTemplateKeys(D, multiTplInfo);
-
-    $('multi_tpl_name').textContent = file.name;
-    $('multi_tpl_cols_count').textContent = `${multiTplInfo.headers.length} colonnes cibles détectées`;
-    $('multi_tpl_cols_list').innerHTML = `<b>Colonnes cibles :</b> ${multiTplInfo.headers.map(h => `<span class="chip neutral" style="margin:2px">${h}</span>`).join(' ')}`;
-    $('multi_tpl_badge').style.display = 'block';
-    $('btn_clear_multi_tpl').style.display = 'inline-block';
-
-    updateMultiExportButton();
-    initMultiRowsData(true);
-    if (multiResult) {
-      renderMultiTable();
-    }
-  } catch (err) {
-    alert('Erreur lors de la lecture du modèle : ' + err.message);
-  }
-}
-
-function clearMultiTemplate() {
-  multiTplWb = null;
-  multiTplInfo = null;
-  multiTplFile = null;
-  if ($('multi_tpl_input')) $('multi_tpl_input').value = '';
-  $('multi_tpl_badge').style.display = 'none';
-  $('btn_clear_multi_tpl').style.display = 'none';
-  updateMultiExportButton();
-  initMultiRowsData(true);
-  if (multiResult) {
-    renderMultiTable();
-  }
-}
-
-function initMultiRowsData(reset) {
-  if (!multiResult || !multiResult.rows) return;
-  const headers = (multiTplInfo && multiTplInfo.headers) ? multiTplInfo.headers : null;
-  const keys = (multiTplInfo && multiTplInfo.keys) ? multiTplInfo.keys : [];
-
-  multiResult.rows.forEach(r => {
-    if (reset || !r._row) r._row = {};
-    if (headers) {
-      headers.forEach((h, j) => {
-        const k = keys[j] || '';
-        if (r._row[h] === undefined) {
-          r._row[h] = E.mapRecordToColumn(r, k, h, D);
-        }
-      });
-    }
-  });
-}
-
-function flipNamesMulti() {
-  if (!multiResult || !multiResult.rows) return;
-  multiResult.rows.forEach(r => {
-    const tmp = r.nom_fr;
-    r.nom_fr = r.prenom_fr;
-    r.prenom_fr = tmp;
-
-    if (r._row) {
-      if (multiTplInfo && multiTplInfo.headers) {
-        multiTplInfo.headers.forEach((h, j) => {
-          const k = (multiTplInfo.keys || [])[j] || '';
-          const normH = E.norm(h);
-          if (k === 'nom' || k === 'nom_fr' || /(^|[\s_])nom(\s*\(fr\)|_fr|\s*$)/i.test(h) || normH === 'nom') {
-            r._row[h] = r.nom_fr || '';
-          } else if (k === 'prenom' || k === 'prenom_fr' || /(^|[\s_])pr[eé]nom(\s*\(fr\)|_fr|\s*$)/i.test(h) || normH === 'prenom') {
-            r._row[h] = r.prenom_fr || '';
-          }
-        });
-      } else {
-        r._row['Nom (FR)'] = r.nom_fr || '';
-        r._row['Prénom (FR)'] = r.prenom_fr || '';
-      }
-    }
-  });
-  renderMultiTable();
-}
-
-function updateMultiExportButton() {
-  const btn = $('btn_multi_export');
-  if (!btn) return;
-  if (multiTplInfo) {
-    btn.innerHTML = `📥 Télécharger projeté dans « ${multiTplInfo.name} » (.xlsx)`;
-  } else {
-    btn.innerHTML = `📥 Télécharger le fichier Boti consolidé (.xlsx)`;
-  }
-}
-
-async function runMerge() {
-  try {
-    $('multi_msg').textContent = 'Analyse et extraction des fichiers en cours...';
-    await initDict();
-    const sources = [];
-
-    for (let item of multiFiles) {
-      const buf = await item.file.arrayBuffer();
-      if (item.ext === 'pdf') {
-        const parsed = await E.parsePdf(new Uint8Array(buf), window.pdfjsLib);
-        sources.push({ role: item.role, rows: parsed.rows, name: item.name });
-      } else {
-        const wb = XLSX.read(buf, { type: 'array', cellStyles: true });
-        if (item.role === 'massar') {
-          const massarRows = E.parseMassarWorkbook(XLSX, wb);
-          sources.push({ role: 'massar', rows: massarRows, name: item.name });
+    prog(8, 'Chargement du dictionnaire…'); await initDict();
+    let done = 0;
+    for (const it of files) {
+      prog(10 + 70 * done / files.length, 'Lecture de ' + it.name + '…');
+      const buf = await it.file.arrayBuffer(); let a = { name: it.name, role: it.role, rows: 0, note: '', ok: true, icon: it.ext === 'pdf' ? '📄' : '📊' };
+      try {
+        if (it.ext === 'pdf') {
+          const p = await E.parsePdf(new Uint8Array(buf), window.pdfjsLib);
+          const role = it.role !== 'generic' ? it.role : (p.role !== 'generic' ? p.role : 'generic');
+          sources.push({ role, rows: p.rows, name: it.name }); a.role = role; a.rows = p.rows.length; a.note = `PDF · ${p.totalPages} page(s)`;
         } else {
-          for (let sName of wb.SheetNames) {
-            const rawRows = XLSX.utils.sheet_to_json(wb.Sheets[sName]);
-            if (rawRows.length > 0) {
-              sources.push({
-                role: item.role,
-                rows: rawRows,
-                name: item.name + (wb.SheetNames.length > 1 ? ` (${sName})` : '')
-              });
+          const wb = XLSX.read(buf, { type: 'array', cellStyles: true });
+          let massar = it.role === 'massar' ? E.parseMassarWorkbook(XLSX, wb) : [];
+          if (!massar.length && it.role === 'generic') { const t = E.parseMassarWorkbook(XLSX, wb); if (t.length) massar = t; }
+          if (massar.length) { sources.push({ role: 'massar', rows: massar, name: it.name }); a.role = 'massar'; a.rows = massar.length; a.note = 'Format Massar détecté (colonnes arabes)'; }
+          else {
+            let tot = 0, rec = 0, cnt = 0, sheets = [];
+            for (const sn of wb.SheetNames) {
+              const o = sheetToObjects(wb, sn); if (!o) continue;
+              sources.push({ role: it.role, rows: o.rows, name: it.name + (wb.SheetNames.length > 1 ? ' · ' + sn : '') });
+              tot += o.rows.length; rec += o.recognized; cnt += o.total; sheets.push(sn);
             }
+            a.rows = tot; a.note = tot ? `${rec}/${cnt} colonnes reconnues` + (sheets.length > 1 ? ` · ${sheets.length} feuilles` : '') : 'Aucune donnée exploitable';
+            if (!tot) a.ok = false;
           }
         }
-      }
+      } catch (e) { a.ok = false; a.note = 'Lecture impossible : ' + e.message; }
+      analysis.push(a); done++;
+      $('an_files').innerHTML = analysis.map(anFile).join('');
     }
-
-    $('multi_msg').textContent = 'Réconciliation sémantique et fusion en cours...';
-    multiResult = E.reconcileMulti(sources, D);
-    initMultiRowsData(true);
-
-    $('kpi_total').textContent = multiResult.stats.total;
-    $('kpi_ok').textContent = multiResult.stats.ok;
-    $('kpi_verify').textContent = multiResult.stats.toVerify;
-    $('kpi_ecole').textContent = multiResult.stats.ecoleSeule;
-    $('kpi_massar').textContent = multiResult.stats.massarSeul;
-
-    $('multi_results').hidden = false;
-    $('multi_msg').textContent = `Fusion réussie : ${multiResult.stats.total} élèves consolidés !`;
-    renderMultiTable();
-  } catch (err) {
-    $('multi_msg').textContent = 'Erreur : ' + err.message;
-    console.error(err);
+    const usable = sources.filter(s => s.rows.length);
+    if (!usable.length) throw new Error('Aucune donnée exploitable dans les fichiers déposés.');
+    prog(85, 'Fusion et réconciliation des fichiers…');
+    await new Promise(r => setTimeout(r, 30));
+    // reconcileMultiAsync : traite les élèves par chunks de 50 et yield entre chaque
+    // pour ne pas bloquer l'UI sur de gros volumes (840+ lignes)
+    result = await E.reconcileMultiAsync(usable, D, {}, (pct, msg) => prog(pct, msg));
+    initRows(true);
+    prog(100, 'Analyse terminée');
+    $('an_title').textContent = '✅ Analyse terminée';
+    const st = result.stats, multi = usable.length > 1;
+    $('an_sum').innerHTML = `<div class="an-sum"><div><b>${files.length}</b><span>fichier(s)</span></div><div><b>${st.total}</b><span>élèves détectés</span></div><div><b>${st.ok}</b><span>cohérents</span></div><div><b style="color:var(--warning)">${st.toVerify}</b><span>à vérifier</span></div></div>`
+      + (multi ? '' : `<div class="info-banner" style="margin:14px 0 0">ℹ️ <span>Un seul fichier déposé : seules les informations qu'il contient seront remplies. Vous pourrez compléter le reste dans le tableau final.</span></div>`);
+    unlock(3); $('btn_an_next').disabled = false;
+  } catch (e) {
+    console.error(e); $('an_title').textContent = '❌ Analyse impossible'; prog(0, e.message); maxStep = 1;
   }
 }
-
-function filterMulti(cat) {
-  $('multi_fl').value = cat;
-  renderMultiTable();
+function anFile(a) {
+  const guess = a.role === 'generic';
+  return `<div class="an-file"><div class="ic">${a.ok ? a.icon : '⚠️'}</div><div style="flex:1"><b>${esc(a.name)}</b>
+    <div class="an-meta"><span class="role-tag ${guess ? 'guess' : ''}">${ROLE_LABEL[a.role] || a.role}</span> · ${a.ok ? `<b>${a.rows}</b> ligne(s)` : ''} ${esc(a.note ? '· ' + a.note : '')}</div>
+    ${guess && a.ok ? '<div class="an-meta" style="color:var(--warning)">Rôle non déterminé par le nom : le contenu a été analysé pour deviner son usage.</div>' : ''}</div></div>`;
 }
 
-function updateMultiStudentField(idx, k, h, val) {
-  if (!multiResult || !multiResult.rows[idx]) return;
-  const r = multiResult.rows[idx];
-  if (!r._row) r._row = {};
-  const strH = String(h || '').trim();
-  const normH = E.norm(strH);
-
-  // 1. Immediately store the exact user edit in r._row[strH]
-  r._row[strH] = val;
-
-  // 2. Also synchronize back to canonical student record fields
-  if (k === 'id' || /^id$|^identifiant$/i.test(normH) || /^id\b/i.test(normH)) {
-    r.id = val;
-    if (!r.matricule) r.matricule = val;
-  }
-  else if (k === 'matricule' || /matricule|num.*inscr|code.*eleve|id.*eleve/i.test(strH) || normH === 'matricule') {
-    r.matricule = val;
-    if (!r.id) r.id = val;
-  }
-  else if (k === 'massar' || /massar|cne/i.test(strH) || normH === 'massar' || normH === 'cne' || normH === 'code massar') {
-    r.code_massar = val;
-  }
-  else if (k === 'nom_ar' || /nom.*ar|النسب|نسب/i.test(strH)) r.nom_ar = val;
-  else if (k === 'prenom_ar' || /pr[eé]nom.*ar|الإسم|الاسم/i.test(strH)) r.prenom_ar = val;
-  else if (k === 'prenom' || k === 'prenom_fr' || /(^|[\s_])pr[eé]nom(\s*\(fr\)|_fr|\s*$)/i.test(strH) || normH === 'prenom') r.prenom_fr = val;
-  else if (k === 'nom' || k === 'nom_fr' || /(^|[\s_])nom(\s*\(fr\)|_fr|\s*$)/i.test(strH) || normH === 'nom') r.nom_fr = val;
-  else if (k === 'sexe' || /genre|sexe/i.test(strH)) r.genre = val;
-  else if (k === 'date_naissance' || /date.*naiss/i.test(strH)) r.date_naissance = val;
-  else if (/classe.*massar/i.test(strH)) r.classe_massar = val;
-  else if (k === 'classe' || /classe|groupe/i.test(strH)) r.classe_ecole = val;
-  else if (/niveau.*massar/i.test(strH)) r.niveau_massar = val;
-  else if (k === 'niveau' || /niveau/i.test(strH)) r.niveau_ecole = val;
-  else if (k === 'date_inscription' || /date.*inscr/i.test(strH)) r.date_inscription = val;
-  else if (/autre.*t[ée]l.*papa|fixe.*p[eè]re|urgence.*p[eè]re/i.test(strH)) r.autre_tel_papa = val;
-  else if (/autre.*t[ée]l.*maman|fixe.*m[eè]re|urgence.*m[eè]re/i.test(strH)) r.autre_tel_maman = val;
-  else if (k === 'papa_tel' || /gsm.*(papa|p[eè]re)|(t[ée]l|contact|mobile).*(papa|p[eè]re)/i.test(strH)) r.gsm_papa = val;
-  else if (k === 'maman_tel' || /gsm.*(maman|m[eè]re)|(t[ée]l|contact|mobile).*(maman|m[eè]re)/i.test(strH)) r.gsm_maman = val;
-  else if (/gsm.*tuteur|(t[ée]l|contact|mobile).*tuteur/i.test(strH)) {
-    r.gsm_papa = val;
-  }
-  else if (/pr[eé]nom.*(papa|p[eè]re)/i.test(strH)) r.prenom_papa = val;
-  else if (k === 'papa_nom' || /(nom.*(papa|p[eè]re)|(^|[\s_])(p[eè]re|papa|parent\s*1|tuteur)($|[\s_]))/i.test(strH)) r.nom_papa = val;
-  else if (/pr[eé]nom.*(maman|m[eè]re)/i.test(strH)) r.prenom_maman = val;
-  else if (k === 'maman_nom' || /(nom.*(maman|m[eè]re)|(^|[\s_])(m[eè]re|maman|parent\s*2)($|[\s_]))/i.test(strH)) r.nom_maman = val;
-  else {
-    if (!r.extra) r.extra = {};
-    r.extra[strH] = val;
-  }
+/* ───────── Étape 3 : type d'import ───────── */
+function renderTemplates() {
+  const T = E.TEMPLATES;
+  $('tpl_grid').innerHTML = Object.keys(T).map(k => {
+    const t = T[k], sel = k === previewKey;
+    return `<div class="tpl-card ${sel ? 'selected' : ''} ${t.available ? '' : 'disabled'}" onclick="pickTemplate('${k}')">
+      <span class="tpl-badge">${t.available ? '⭐ Disponible' : 'Bientôt'}</span>
+      <div class="tpl-card-icon">${t.icon}</div><div class="tpl-card-name">${esc(t.name)}</div>
+      <span class="tpl-card-tag">${esc(t.tag)}</span><div class="tpl-card-desc">${esc(t.desc)}</div>
+      <div class="tpl-card-fields">📋 ${t.cols.length} champs</div></div>`;
+  }).join('');
+  renderPreview();
+}
+function pickTemplate(k) { previewKey = k; tplKey = k; renderTemplates(); }
+function groupCols(cols, base) { const g = []; cols.forEach(c => { const n = c.group || base || 'ÉLÈVE'; let last = g[g.length - 1]; if (!last || last.name !== n) { last = { name: n, cols: [] }; g.push(last); } last.cols.push(c); }); return g; }
+function renderPreview() {
+  const t = E.TEMPLATES[previewKey];
+  $('tpl_preview').innerHTML = `<h3>Aperçu des champs · ${esc(t.name)}</h3><div style="font-size:13px;color:var(--muted-foreground)">${t.cols.length} champs seront produits :</div>`
+    + groupCols(t.cols, t.hasSuperHeaders ? 'ÉLÈVE' : t.name).map(g => `<div class="prev-grp"><div class="lbl">${esc(g.name)} (${g.cols.length})</div><div class="fchips">${g.cols.map(c => `<span class="fchip ${g.name === 'PAPA' ? 'papa' : g.name === 'MAMAN' ? 'maman' : ''}">${esc(c.h)}</span>`).join('')}</div></div>`).join('')
+    + (t.partial ? `<div class="soon-note">ℹ️ Vos fichiers sont lus comme des listes d'élèves : seuls les champs retrouvés (matricule, nom, niveau, classe…) seront remplis, les autres resteront vides à compléter. Les champs Père/Mère par défaut n'existent que dans le modèle Élèves & Parents.</div>` : '');
+  $('btn_tpl_next').disabled = false;
 }
 
-function renderMultiTable() {
-  if (!multiResult) return;
-  updateMultiExportButton();
-  const f = $('multi_fl').value;
-  const q = $('multi_q').value.toLowerCase().trim();
-  const lim = $('multi_lim').value;
+/* ───────── Étape 4 : champs & exemple ───────── */
+function buildMapping() { tplKey = previewKey; initRows(false); sampleIdx = bestSample(); renderMapping(); unlock(4); show(4); }
+function bestSample() { // un élève "représentatif" : le plus rempli parmi les 40 premiers
+  let best = 0, bs = -1; const cols = E.TEMPLATES[tplKey].cols;
+  result.rows.slice(0, 40).forEach((r, i) => { const s = cols.filter(c => String(rowVal(r, c) || '').trim()).length; if (s > bs) { bs = s; best = i; } }); return best;
+}
+function moveSample(d, rnd) { const n = result.rows.length; sampleIdx = rnd ? Math.floor(Math.random() * n) : (sampleIdx + d + n) % n; renderMapping(); }
+function renderMapping() {
+  const r = result.rows[sampleIdx], N = result.rows.length;
+  mapping = E.generateVerticalMapping(sources.filter(s => s.rows.length), tplKey, D, result.rows, sampleIdx);
+  $('sample_who').textContent = `Exemple · élève ${sampleIdx + 1}/${N} — ${((r.nom_fr || '') + ' ' + (r.prenom_fr || '')).trim() || r.nom_ecole || '(sans nom)'}`;
+  const chip = s => ({ ok: '<span class="chip ok"><span class="chip-dot" style="background:var(--success-dot)"></span>OK</span>', rule: '<span class="chip rule">Règle</span>', empty: '<span class="chip warn"><span class="chip-dot" style="background:var(--warning)"></span>Vide</span>', warn: '<span class="chip warn">À vérifier</span>', error: '<span class="chip bad">À corriger</span>' }[s]);
+  $('map_wrap').innerHTML = `<table><thead><tr><th>#</th><th>Champ output</th><th>Exemple</th><th>Comment c'est trouvé</th><th>Contrôle / à corriger</th><th>Couverture</th></tr></thead><tbody>`
+    + mapping.map((m, i) => {
+      const pct = m.total ? Math.round(100 * m.filled / m.total) : 0, ar = E.isAr(m.sampleValue) || /_ar$/.test(m.colKey);
+      return `<tr class="${m.status === 'empty' ? 'map-row-empty' : m.status === 'rule' ? 'map-row-rule' : m.status === 'error' ? 'map-row-error' : m.status === 'warn' ? 'map-row-warn' : ''}">
+        <td style="color:var(--ink-3);text-align:center">${i + 1}</td>
+        <td><b>${esc(m.header)}</b>${m.group ? ` <span class="chip neutral" style="font-size:10.5px;padding:1px 8px">${esc(m.group)}</span>` : ''}</td>
+        <td class="val" dir="${ar ? 'rtl' : 'ltr'}">${m.sampleValue ? esc(m.sampleValue) : '<span style="color:var(--ink-3);font-style:italic;font-weight:500">— vide —</span>'}</td>
+        <td class="wrap-td">${esc(m.how)}</td>
+        <td class="wrap-td">${chip(m.status)} ${m.comment ? esc(m.comment) : ''}${m.fix ? `<span class="fix">${esc(m.fix)}</span>` : ''}</td>
+        <td class="cov">${m.filled}/${m.total}<span class="bar"><i style="width:${pct}%"></i></span></td></tr>`;
+    }).join('') + '</tbody></table>';
+}
 
-  const filtered = multiResult.rows.map((r, i) => [r, i]).filter(([r]) => {
-    if (f === 'OK' && r.statut !== 'OK') return false;
-    if (f === 'verify' && !r.statut.startsWith('À vérifier')) return false;
-    if (f === 'ecole' && !r.statut.startsWith('École seule')) return false;
-    if (f === 'massar' && !r.statut.startsWith('Massar seul')) return false;
-    if (q) {
-      const str = `${r.matricule} ${r.code_massar} ${r.nom_fr} ${r.prenom_fr} ${r.nom_ar} ${r.prenom_ar} ${r.classe_ecole} ${r.classe_massar} ${r.gsm_papa} ${r.gsm_maman}`.toLowerCase();
-      if (!str.includes(q)) return false;
-    }
-    return true;
+/* ───────── Étape 5 : tableau complet ───────── */
+const tplCols = () => E.TEMPLATES[tplKey].cols;
+function rowVal(r, c) { const k = E.rowKey(c); return (r._row && r._row[k] != null) ? r._row[k] : E.cellValue(r, c, tplKey, D); }
+function initRows(reset) { result.rows.forEach(r => { if (reset || !r._row) r._row = {}; E.TEMPLATES[tplKey].cols.forEach(c => { const k = E.rowKey(c); if (r._row[k] === undefined) r._row[k] = E.cellValue(r, c, tplKey, D); }); }); }
+let filt = '';
+function setFilter(f) { $('fl').value = f; renderFull(); }
+function rowInfo(r) { let empty = 0, bad = 0; tplCols().forEach(c => { const v = String(r._row[E.rowKey(c)] || '').trim(); if (!v) empty++; else { const x = E.validateValue(c.k, v); if (x && x.lvl === 'erreur') bad++; } }); return { empty, bad }; }
+function showFull() { initRows(false); unlock(5); show(5); $('done_card').hidden = true; $('full_card').hidden = false; renderFull(); }
+function renderFull() {
+  const f = $('fl').value, q = ($('q').value || '').toLowerCase().trim(), lim = $('lim').value, cols = tplCols();
+  let tEmpty = 0, tBad = 0, tVerify = 0;
+  const infos = result.rows.map(r => { const i = rowInfo(r); if (i.empty) tEmpty++; tBad += i.bad; if (/^À vérifier/.test(r.statut || '')) tVerify++; return i; });
+  $('k_total').textContent = result.rows.length; $('k_empty').textContent = tEmpty; $('k_bad').textContent = tBad; $('k_verify').textContent = tVerify;
+  const list = result.rows.map((r, i) => [r, i]).filter(([r, i]) => {
+    if (f === 'incomplete' && !infos[i].empty) return false; if (f === 'bad' && !infos[i].bad) return false; if (f === 'verify' && !/^À vérifier/.test(r.statut || '')) return false;
+    if (q && !cols.some(c => String(r._row[E.rowKey(c)] || '').toLowerCase().includes(q))) return false; return true;
   });
-
-  const maxRows = lim === 'all' ? filtered.length : Math.min(parseInt(lim, 10) || 100, filtered.length);
-  const slice = filtered.slice(0, maxRows);
-  const tplNote = multiTplInfo ? ` · <span style="color:var(--success);font-weight:700">🎯 Modèle d'output : ${multiTplInfo.name} (${multiTplInfo.headers.length} colonnes)</span>` : '';
-  $('multi_badge_count').innerHTML = `${slice.length} affichés sur ${filtered.length} (${multiResult.rows.length} au total)${tplNote}`;
-
-  function stBadge(st) {
-    if (st === 'OK') return `<span class="chip ok"><span class="chip-dot" style="background:var(--success-dot)"></span>OK</span>`;
-    if (st.startsWith('À vérifier')) return `<span class="chip warn" title="${st}"><span class="chip-dot" style="background:var(--warning)"></span>À vérifier</span>`;
-    if (st.startsWith('École seule')) return `<span class="chip info"><span class="chip-dot" style="background:var(--info-dot)"></span>École seule</span>`;
-    return `<span class="chip massar"><span class="chip-dot" style="background:var(--ring)"></span>Massar seul</span>`;
-  }
-
-  function rowClass(st) {
-    if (st === 'OK') return 'tr-ok';
-    if (st.startsWith('À vérifier')) return 'tr-verify';
-    if (st.startsWith('École seule')) return 'tr-school';
-    return 'tr-massar';
-  }
-
-  if (multiTplInfo && multiTplInfo.headers && multiTplInfo.headers.length > 0) {
-    const headers = multiTplInfo.headers;
-    const keys = multiTplInfo.keys || [];
-
-    $('multi_table_wrap').innerHTML = `
-      <table>
-        <thead>
-          <tr>
-            <th class="sticky-id">#</th>
-            <th>Statut</th>
-            ${headers.map((h, j) => `<th title="Clé : ${keys[j] || h}">${h}</th>`).join('')}
-          </tr>
-        </thead>
-        <tbody>
-          ${slice.map(([r, i]) => {
-            if (!r._row) r._row = {};
-            return `
-            <tr class="${rowClass(r.statut)}">
-              <td class="sticky-id">${i + 1}</td>
-              <td>${stBadge(r.statut)}</td>
-              ${headers.map((h, j) => {
-                const k = keys[j] || '';
-                if (r._row[h] === undefined) {
-                  r._row[h] = E.mapRecordToColumn(r, k, h, D);
-                }
-                const val = r._row[h] != null ? String(r._row[h]) : '';
-                const isAr = E.isAr(val) || (k && k.endsWith('_ar')) || E.isAr(h);
-                const safeH = h.replace(/'/g, "\\'");
-                return `<td><input class="c" dir="${isAr ? 'rtl' : 'ltr'}" value="${val.replace(/"/g, '&quot;')}" oninput="updateMultiStudentField(${i}, '${k}', '${safeH}', this.value)" onchange="updateMultiStudentField(${i}, '${k}', '${safeH}', this.value)"></td>`;
-              }).join('')}
-            </tr>
-          `;
-          }).join('')}
-        </tbody>
-      </table>
-    `;
-  } else {
-    const cols = [
-      { k: 'matricule', h: 'Matricule' },
-      { k: 'code_massar', h: 'Code Massar' },
-      { k: 'nom_fr', h: 'Nom (FR)' },
-      { k: 'prenom_fr', h: 'Prénom (FR)' },
-      { k: 'nom_ar', h: 'النسب (AR)' },
-      { k: 'prenom_ar', h: 'الإسم (AR)' },
-      { k: 'genre', h: 'Genre' },
-      { k: 'date_naissance', h: 'Date Naiss.' },
-      { k: 'classe_ecole', h: 'Classe (école)' },
-      { k: 'classe_massar', h: 'Classe (Massar)' },
-      { k: 'gsm_papa', h: 'GSM Papa' },
-      { k: 'gsm_maman', h: 'GSM Maman' },
-      { k: 'autre_tel_papa', h: 'Autre tél. Papa' },
-      { k: 'autre_tel_maman', h: 'Autre tél. Maman' }
-    ];
-
-    const allExtraKeys = new Set();
-    multiResult.rows.forEach(r => {
-      if (r.extra) Object.keys(r.extra).forEach(k => allExtraKeys.add(k));
-    });
-    const dynamicCols = [...cols];
-    for (let xk of allExtraKeys) {
-      dynamicCols.push({ k: 'extra_' + xk, h: xk, isExtra: true, origKey: xk });
-    }
-
-    $('multi_table_wrap').innerHTML = `
-      <table>
-        <thead>
-          <tr>
-            <th class="sticky-id">#</th>
-            <th>Statut</th>
-            ${dynamicCols.map(c => `<th>${c.h}</th>`).join('')}
-          </tr>
-        </thead>
-        <tbody>
-          ${slice.map(([r, i]) => {
-            if (!r._row) r._row = {};
-            return `
-            <tr class="${rowClass(r.statut)}">
-              <td class="sticky-id">${i + 1}</td>
-              <td>${stBadge(r.statut)}</td>
-              ${dynamicCols.map(c => {
-                if (r._row[c.h] === undefined) {
-                  r._row[c.h] = c.isExtra ? (r.extra && r.extra[c.origKey] != null ? String(r.extra[c.origKey]) : '') : (r[c.k] != null ? String(r[c.k]) : '');
-                }
-                const val = r._row[c.h] != null ? String(r._row[c.h]) : '';
-                const isAr = E.isAr(val) || c.k.endsWith('_ar');
-                const safeH = c.h.replace(/'/g, "\\'");
-                return `<td><input class="c" dir="${isAr ? 'rtl' : 'ltr'}" value="${val.replace(/"/g, '&quot;')}" oninput="updateMultiStudentField(${i}, '${c.k}', '${safeH}', this.value)" onchange="updateMultiStudentField(${i}, '${c.k}', '${safeH}', this.value)"></td>`;
-              }).join('')}
-            </tr>
-          `;
-          }).join('')}
-        </tbody>
-      </table>
-    `;
-  }
+  const slice = list.slice(0, lim === 'all' ? list.length : +lim);
+  $('cnt').textContent = `${slice.length} affichée(s) / ${list.length} · ${result.rows.length} au total`;
+  const groups = groupCols(cols, E.TEMPLATES[tplKey].hasSuperHeaders ? 'ÉLÈVE' : E.TEMPLATES[tplKey].name), gcol = { 'ÉLÈVE': '#0c0c5e', PAPA: '#2b28de', MAMAN: '#8a3cf9' };
+  const head1 = `<tr><th class="sticky-id" rowspan="2">#</th><th rowspan="2">Rapprochement</th>` + groups.map(g => `<th colspan="${g.cols.length}" style="background:${gcol[g.name] || '#4a5578'};color:#fff;text-align:left;padding-left:16px;letter-spacing:1px;border-right:2px solid #fff">${esc(g.name)}</th>`).join('') + '</tr>';
+  const head2 = '<tr>' + cols.map(c => `<th title="${esc(c.group ? c.group + ' · ' + c.h : c.h)}">${esc(c.h)}</th>`).join('') + '</tr>';
+  const stc = s => !s || s === 'OK' ? '<span class="chip ok">OK</span>' : /^À vérifier/.test(s) ? `<span class="chip warn" title="${esc(s)}">À vérifier</span>` : /^École/.test(s) ? '<span class="chip info">École seule</span>' : '<span class="chip massar">Massar seul</span>';
+  $('full_wrap').innerHTML = `<table style="min-width:0"><thead>${head1}${head2}</thead><tbody>` + slice.map(([r, i]) => `<tr class="${!r.statut || r.statut === 'OK' ? 'tr-ok' : /^À vérifier/.test(r.statut) ? 'tr-verify' : /^École/.test(r.statut) ? 'tr-school' : 'tr-massar'}"><td class="sticky-id">${i + 1}</td><td>${stc(r.statut)}</td>`
+    + cols.map((c, j) => { const k = E.rowKey(c), v = String(r._row[k] == null ? '' : r._row[k]), x = v.trim() ? E.validateValue(c.k, v) : null, cls = !v.trim() ? 'is-empty' : x && x.lvl === 'erreur' ? 'bad' : x && x.lvl === 'avertissement' ? 'warnv' : '';
+      return `<td class="${v.trim() ? '' : 'cell-empty'}"><input class="c ${cls}" style="width:${Math.max(84, (c.w || 14) * 8 + 16)}px" dir="${E.isAr(v) || /_ar$/.test(c.k) ? 'rtl' : 'ltr'}" placeholder="— vide —" value="${esc(v)}" title="${x ? esc(x.msg + ' — ' + x.fix) : ''}" data-i="${i}" data-j="${j}" oninput="onEdit(this)"></td>`; }).join('') + '</tr>').join('') + '</tbody></table>';
+}
+function onEdit(el) {
+  const r = result.rows[+el.dataset.i], c = tplCols()[+el.dataset.j], v = el.value; r._row[E.rowKey(c)] = v;
+  const x = v.trim() ? E.validateValue(c.k, v) : null;
+  el.classList.toggle('is-empty', !v.trim()); el.classList.toggle('bad', !!x && x.lvl === 'erreur'); el.classList.toggle('warnv', !!x && x.lvl === 'avertissement');
+  el.title = x ? x.msg + ' — ' + x.fix : ''; el.parentNode.classList.toggle('cell-empty', !v.trim());
+  clearTimeout(onEdit.t); onEdit.t = setTimeout(refreshKpis, 250);
+}
+function refreshKpis() { let e = 0, b = 0; result.rows.forEach(r => { const i = rowInfo(r); if (i.empty) e++; b += i.bad; }); $('k_empty').textContent = e; $('k_bad').textContent = b; }
+function flipNames() {
+  const kn = tplCols().filter(c => !c.group && (c.k === 'nom' || c.k === 'prenom')).map(E.rowKey);
+  if (kn.length === 2) result.rows.forEach(r => { const t = r._row[kn[0]]; r._row[kn[0]] = r._row[kn[1]]; r._row[kn[1]] = t; });
+  renderFull();
 }
 
-function exportMultiExcel() {
-  if (!multiResult) return;
-  const xlsxBuf = E.exportMulti(XLSX, multiResult, multiTplInfo, multiTplWb, D);
-  const blob = new Blob([xlsxBuf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  const fname = multiTplFile ? `Boti_${multiTplFile.name}` : 'Boti_Eleves_Parents_Consolide.xlsx';
-  a.download = fname;
-  a.click();
+/* ───────── Validation & import ───────── */
+function stats() { let bad = 0, empty = 0; result.rows.forEach(r => { const i = rowInfo(r); bad += i.bad; if (i.empty) empty++; }); return { total: result.rows.length, bad, incomplete: empty }; }
+function askImport() {
+  const s = stats(), t = E.TEMPLATES[tplKey];
+  $('modal_list').innerHTML = `<li><span>Modèle</span><b>${esc(t.name)}</b></li><li><span>Lignes à importer</span><b>${s.total}</b></li><li><span>Lignes avec cases vides</span><b>${s.incomplete}</b></li><li><span>Cellules au format invalide</span><b style="color:${s.bad ? 'var(--destructive)' : 'var(--success)'}">${s.bad}</b></li>`;
+  const w = $('modal_warn'); w.style.display = s.bad ? 'block' : 'none'; w.textContent = s.bad ? `⚠️ ${s.bad} cellule(s) ont un format invalide (en rouge dans le tableau). Vous pouvez annuler pour les corriger, ou importer tel quel.` : '';
+  $('modal').hidden = false;
+}
+async function doImport() {
+  $('modal').hidden = true;
+  const t = E.TEMPLATES[tplKey], cols = t.cols;
+  const payload = { template: tplKey, columns: cols.map(c => ({ key: c.k, label: c.h, group: c.group || '' })), rows: result.rows.map(r => { const o = {}; cols.forEach(c => { o[c.k] = String(r._row[E.rowKey(c)] == null ? '' : r._row[E.rowKey(c)]); }); return o; }), stats: stats() };
+  // Point d'intégration : branchez ici l'API BOTI (window.BOTI_onImport = async payload => {...}) ou écoutez l'évènement « boti:import ».
+  try { if (typeof window.BOTI_onImport === 'function') await window.BOTI_onImport(payload); window.dispatchEvent(new CustomEvent('boti:import', { detail: payload })); }
+  catch (e) { alert("L'import a échoué : " + e.message); return; }
+  downloadXlsx();
+  $('done_msg').textContent = `${payload.rows.length} ligne(s) validée(s) au format « ${t.name} ». Le fichier Excel correspondant vient d'être téléchargé.`;
+  $('full_card').hidden = true; $('done_card').hidden = false; window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function backToTable() { $('done_card').hidden = true; $('full_card').hidden = false; }
+function dl(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+function downloadXlsx() { const t = E.TEMPLATES[tplKey]; dl(new Blob([tplKey === 'boti_eleves_parents' ? E.exportMulti(XLSX, result, null, null, D, { onlyMain: true }) : E.exportTemplate(XLSX, tplKey, result.rows, D)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'BOTI_' + tplKey + '.xlsx'); }
+function downloadCsv() {
+  const cols = tplCols(), q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  let csv = cols.map((c, i) => q(c.group && (i === 0 || cols[i - 1].group !== c.group) ? c.group : '')).join(',') + '\r\n' + cols.map(c => q(c.h)).join(',') + '\r\n';
+  result.rows.forEach(r => { csv += cols.map(c => q(r._row[E.rowKey(c)])).join(',') + '\r\n'; });
+  dl(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }), 'BOTI_' + tplKey + '.csv');
 }
 
-function exportMultiReport() {
-  if (!multiResult) return;
-  const rep = {
-    date: new Date().toISOString(),
-    statistiques: multiResult.stats,
-    a_verifier_count: multiResult.toVerify.length,
-    a_verifier: multiResult.toVerify
-  };
-  const blob = new Blob([JSON.stringify(rep, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'rapport_reconciliation.json';
-  a.click();
-}
-
-// ==================== LOGIQUE MODE 1 : FICHIER UNIQUE ====================
-let S, T, tpl, A, R, t0;
-const rd = f => new Promise(ok => { const r = new FileReader(); r.onload = e => ok(XLSX.read(e.target.result, { type: 'array', cellStyles: true })); r.readAsArrayBuffer(f); });
-const lv = s => {
-  const l = E.level(s);
-  let cls = 'neutral';
-  if (l.startsWith('très') || l === 'haute') cls = 'ok';
-  else if (l === 'moyenne') cls = 'warn';
-  else if (l === 'faible') cls = 'bad';
-  return `<span class="chip ${cls}"><span class="chip-dot"></span>${s} · ${l}</span>`;
-};
-
-async function go(fr) {
-  try {
-    await initDict();
-    t0 = performance.now();
-    if ($('ft').files && $('ft').files[0]) {
-      T = await rd($('ft').files[0]); tpl = E.templateInfo(XLSX, T, D); tpl.name = $('ft').files[0].name; E.useTemplateKeys(D, tpl);
-    } else if (!tpl) {
-      tpl = { sheet: 'Eleves', headerRow: 0, keys: [], labels: [], name: 'Modèle auto' };
-    }
-    if (!$('fs').files || !$('fs').files[0]) { $('msg').textContent = 'Veuillez choisir un fichier source'; return; }
-    S = await rd($('fs').files[0]); A = E.analyze(XLSX, S, D, null, fr); A.name = $('fs').files[0].name; $('hr').value = A.headerRow + 1;
-    if (!tpl.keys.length) {
-      const autoKeys = ['prenom','nom','date_naissance','telephone','classe','massar','matricule'];
-      const mKeys = A.mapping.map(m => m.key).filter(Boolean);
-      const allKeys = [...new Set([...autoKeys, ...mKeys.map(k => k === 'nom_complet' ? 'nom' : k)])];
-      if (mKeys.includes('nom_complet')) { if (!allKeys.includes('prenom')) allKeys.unshift('prenom'); if (!allKeys.includes('nom')) allKeys.unshift('nom'); }
-      tpl.keys = allKeys.filter(k => !['nom_complet','nom_complet_ar'].includes(k));
-      tpl.labels = tpl.keys.map(k => k.replace(/_/g, ' ').toUpperCase());
-    }
-    $('msg').textContent = A.lowConfidence ? '⚠️ en-tête incertain : corrigez la ligne' : `Feuille « ${A.sheet} » analysée (${A.rows.length} lignes)`;
-    $('sm').hidden = $('sp').hidden = false;
-    rmap(); build();
-  } catch (e) { $('msg').textContent = 'Erreur : ' + e.message; }
-}
-
-const friendlyKeys = {'date_inscription':"Date d'entrée / Inscription",'date_naissance':"Date de naissance",'nom_complet':"Nom complet (fusionné)",'nom_complet_ar':"Nom complet (arabe)",'nom':"Nom de famille (النسب)",'prenom':"Prénom (الاسم)",'nom_ar':"النسب (Nom arabe)",'prenom_ar':"الإسم (Prénom arabe)",'classe':"Classe / Groupe",'niveau':"Niveau",'massar':"Code Massar",'matricule':"Matricule",'sexe':"Sexe",'lieu_naissance':"Lieu de naissance",'ancien_etablissement':"Ancien établissement",'papa_nom':"PAPA · Nom",'papa_prenom':"PAPA · Prénom",'papa_nom_complet':"PAPA · Nom complet",'papa_tel':"PAPA · Téléphone",'papa_email':"PAPA · Email",'papa_cin':"PAPA · CIN",'papa_fonction':"PAPA · Fonction",'maman_nom':"MAMAN · Nom",'maman_prenom':"MAMAN · Prénom",'maman_nom_complet':"MAMAN · Nom complet",'maman_tel':"MAMAN · Téléphone",'maman_email':"MAMAN · Email",'maman_cin':"MAMAN · CIN",'maman_fonction':"MAMAN · Fonction"};
-
-function rmap() {
-  const ks = [...new Set([...tpl.keys.filter(Boolean), 'nom_complet', 'nom_complet_ar', ...A.mapping.map(m => m.key).filter(Boolean)])];
-  $('map').innerHTML = '<table><thead><tr><th>Colonne source</th><th>Exemples</th><th>Cible</th><th>Confiance</th><th>Méthode</th></tr></thead><tbody>' + A.mapping.map((m, i) => `<tr><td><b>${m.header}</b></td><td>${m.sample.join(' | ')}</td><td><select onchange="A.mapping[${i}].key=this.value;A.mapping[${i}].score=1;A.mapping[${i}].method='manuel';build()"><option value="">— ignorer —${ks.map(k => `<option value="${k}" ${k===m.key?'selected':''}>${friendlyKeys[k]||(tpl.labels[tpl.keys.indexOf(k)]||k)}</option>`).join('')}</select></td><td>${lv(Math.round(m.score*100))}</td><td>${m.method}</td></tr>`).join('') + '</tbody></table>';
-}
-
-function build() {
-  const no = $('no') ? $('no').value : 'nom_first';
-  R = E.build(A, A.mapping, D, { targetKeys: tpl.keys, nameOrder: no });
-  show();
-}
-
-function flip() {
-  if (!R) return;
-  E.flipNames(R);
-  show();
-}
-
-function show() {
-  const f = $('fl').value, q = $('q').value.toLowerCase(), lim = $('limit') ? $('limit').value : '100';
-  const extraKeys = new Set();
-  if (R) { R.forEach(r => Object.keys(r.v).forEach(k => { if (k && !tpl.keys.includes(k)) extraKeys.add(k); })); }
-  const allKeys = [...tpl.keys.filter(Boolean), ...Array.from(extraKeys)];
-  const allLabels = allKeys.map(k => { const idx = tpl.keys.indexOf(k); if (idx >= 0 && tpl.labels[idx]) return tpl.labels[idx]; return k.replace(/_/g, ' ').toUpperCase(); });
-  const filtered = R.map((r, i) => [r, i]).filter(([r]) => (!f || r.status === f) && (!q || JSON.stringify(r).toLowerCase().includes(q)));
-  const maxRows = lim === 'all' ? filtered.length : Math.min(parseInt(lim, 10) || 100, filtered.length);
-  const slice = filtered.slice(0, maxRows);
-  if ($('count_badge')) $('count_badge').textContent = `${slice.length} affichées sur ${filtered.length} (${R.length} au total)`;
-  $('pv').innerHTML = '<table><thead><tr><th class="sticky-id">#</th><th style="min-width:180px">Original (source)</th>' + allLabels.map((l, j) => `<th title="${allKeys[j]}">${l}</th>`).join('') + '<th>Confiance</th><th>Statut / alertes</th></tr></thead><tbody>' + slice.map(([r, i]) => `<tr class="${r.status.slice(0,2)=='er'?'tr-verify':r.status[0]=='à'?'tr-verify':'tr-ok'}"><td class="sticky-id">${i+1}</td><td class="col-orig" title="${(r.orig||[]).map((x,c)=>(A.headers[c]||('Col '+(c+1)))+': '+(x==null?'':x)).join('\n').replace(/"/g,'&quot;')}">${(r.orig||[]).join(' | ')}</td>${allKeys.map(k=>{const v=r.v[k]!=null?String(r.v[k]):'';const isAr=E.isAr(v)||k.endsWith('_ar');const minW=/adresse/.test(k)?'min-width:200px':/(nom|prenom)/.test(k)?'min-width:150px':'min-width:120px';return`<td><input class="c" style="${minW}" dir="${isAr?'rtl':'ltr'}" title="${v.replace(/"/g,'&quot;')}" value="${v.replace(/"/g,'&quot;')}" onchange="R[${i}].v['${k}']=this.value;R[${i}].edited=1"></td>`}).join('')}<td>${lv(r.score)}</td><td><b>${r.status}</b> ${r.issues.map(x=>'<br><small style="color:var(--muted-foreground)">'+x.lvl+': '+x.msg+'</small>').join('')}</td></tr>`).join('') + '</tbody></table>';
-  const p = E.report(A, tpl, R, A.mapping); p.temps_ms = Math.round(performance.now() - t0); $('rp').textContent = JSON.stringify(p, null, 1);
-}
-
-function exp() {
-  let targetWb = T;
-  if (!targetWb) {
-    targetWb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet([tpl.labels]);
-    XLSX.utils.book_append_sheet(targetWb, ws, tpl.sheet || 'Eleves');
-  }
-  const o = E.export(XLSX, XLSX.read(XLSX.write(targetWb, { type: 'array', bookType: 'xlsx', cellStyles: true }), { type: 'array', cellStyles: true }), tpl, R, A);
-  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([o])); a.download = 'boti_import.xlsx'; a.click();
-}
-
-function rep() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([$('rp').textContent])); a.download = 'rapport.json'; a.click(); }
-function wipe() { S = T = A = R = tpl = null; $('fs').value = $('ft').value = ''; $('sm').hidden = $('sp').hidden = true; $('msg').textContent = 'Données effacées'; }
+/* Affiche les modèles dès que l'étape 3 est visible */
+const _show = show; show = function (n) { _show(n); if (n === 3) renderTemplates(); };
 </script>
 </body></html>
